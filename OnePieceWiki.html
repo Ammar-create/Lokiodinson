@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Piece Wiki (Pre-Ep 110) - Debug</title>
+    <!-- Import Three.js via CDN - Defer execution -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* Optional: Smooth scrolling */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #1f1f1f;
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            position: relative; /* Needed for stacking context with fixed background */
+            min-height: 100vh; /* Ensure footer can stick to bottom if content is short */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #threejs-container {
+            position: fixed; /* Fixed position */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200px; /* Match header height */
+            z-index: -1; /* Behind everything */
+            opacity: 0.2; /* Make it more subtle */
+            pointer-events: none; /* Prevent interaction */
+        }
+
+        header {
+            background: linear-gradient(90deg, #005c97, #363795);
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+            position: relative; /* Establish stacking context */
+            z-index: 10; /* Header above background */
+            height: 200px; /* Increased height for 3D */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 15px; /* Slightly larger click area */
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer; /* Ensure pointer cursor */
+        }
+
+        nav ul li a:hover, nav ul li a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem; /* Increased padding */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            flex-grow: 1; /* Allow main to grow and push footer down */
+            position: relative; /* Needed for stacking context */
+            z-index: 1; /* Above the fixed background */
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #character-grid {
+            display: grid; /* Default state */
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+             from { opacity: 0; transform: translateY(15px); }
+             to { opacity: 1; transform: translateY(0); }
+        }
+
+        .character-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            display: flex; /* Use flexbox for alignment */
+            flex-direction: column; /* Stack image and text vertically */
+            align-items: center; /* Center items horizontally */
+            justify-content: space-between; /* Space out image and text */
+             min-height: 180px; /* Ensure cards have some height */
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px) scale(1.03); /* Added scale */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .character-card img {
+            max-width: 100%;
+            height: 120px; /* Fixed height */
+            object-fit: contain; /* Contain ensures aspect ratio */
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            display: block;
+            background-color: #eee; /* Placeholder bg if image fails */
+            border: 1px solid #ccc; /* Border for placeholder */
+             color: #888; /* Text color for placeholder */
+             text-align: center; /* Center text placeholder */
+             font-size: 0.8em; /* Small font for placeholder */
+             line-height: 120px; /* Vertically center text placeholder */
+        }
+
+        .character-card h3 {
+            font-size: 1rem;
+            color: #005c97;
+             margin-top: auto; /* Push title towards bottom if content is short */
+        }
+
+        /* Hidden by default sections */
+        #character-details, #devil-fruit-list {
+            display: none; /* Start hidden */
+            padding: 1.5rem;
+            animation: fadeIn 0.5s ease-out;
+            border-radius: 8px;
+            background-color: #fdfdfd; /* Slightly different background */
+        }
+
+         #character-details img.detail-img {
+            max-width: 250px;
+            height: auto;
+            float: left;
+            margin-right: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background-color: #eee; /* Placeholder bg */
+            border: 1px solid #ccc;
+            color: #888;
+            text-align: center;
+            font-size: 0.9em;
+            line-height: 1.5; /* Adjust for multiline text */
+             min-height: 150px; /* Placeholder min height */
+             display: flex;
+             align-items: center;
+             justify-content: center;
+         }
+
+        #character-details::after { /* Clearfix for floated image */
+             content: "";
+             display: table;
+             clear: both;
+        }
+
+        #character-details h2, #devil-fruit-list h2 {
+            color: #005c97;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid #363795; /* Thicker border */
+            padding-bottom: 0.5rem;
+        }
+
+         #character-details h3, #devil-fruit-list h3 {
+             color: #363795;
+             margin-top: 1.5rem;
+             margin-bottom: 0.5rem;
+             font-size: 1.3rem; /* Larger subheadings */
+         }
+
+         #character-details p, #character-details ul, #devil-fruit-list ul {
+            margin-bottom: 1rem;
+         }
+
+         #character-details ul, #devil-fruit-list ul {
+            list-style: none; /* Remove default bullets */
+            padding-left: 0;
+         }
+         #character-details ul li, #devil-fruit-list ul li {
+            margin-bottom: 0.7rem; /* Increased spacing */
+            padding-left: 1.5em; /* Indent */
+            position: relative;
+         }
+          /* Custom bullet */
+         #character-details ul li::before, #devil-fruit-list ul li::before {
+             content: '•';
+             color: #005c97;
+             font-weight: bold;
+             display: inline-block;
+             width: 1em;
+             margin-left: -1.5em; /* Align with padding */
+             position: absolute;
+             left: 0;
+         }
+
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+            clear: both; /* Ensure it clears the floated image */
+        }
+
+        .info-table th, .info-table td {
+            border: 1px solid #ddd;
+            padding: 10px 15px; /* More padding */
+            text-align: left;
+            vertical-align: top; /* Align content top */
+        }
+
+        .info-table th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            width: 130px; /* Fixed width for labels */
+        }
+
+        /* Stats Table Specific */
+        .stats-table th {
+             width: 100px; /* Slightly narrower for stat labels */
+        }
+
+        .stat-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px; /* More rounded */
+            margin-bottom: 5px;
+            height: 18px; /* Slightly taller */
+            overflow: hidden;
+        }
+
+        .stat-bar {
+            height: 100%;
+            background-color: #4caf50; /* Green default */
+            border-radius: 10px; /* Fully rounded inner bar */
+            text-align: right;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.8em; /* Slightly larger font */
+            line-height: 18px; /* Match container height */
+            white-space: nowrap;
+            transition: width 0.8s ease-in-out; /* Slower transition */
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1); /* Subtle inner shadow */
+             display: flex; /* Use flex to center text */
+             align-items: center;
+             justify-content: flex-end; /* Align text to the right */
+        }
+        /* Color variations for stats */
+        .stat-bar.strength { background: linear-gradient(90deg, #f44336, #d32f2f); } /* Red gradient */
+        .stat-bar.speed { background: linear-gradient(90deg, #2196F3, #1976D2); } /* Blue gradient */
+        .stat-bar.intelligence { background: linear-gradient(90deg, #ffc107, #ffa000); } /* Yellow gradient */
+        .stat-bar.durability { background: linear-gradient(90deg, #795548, #5d4037); } /* Brown gradient */
+        .stat-bar.skill { background: linear-gradient(90deg, #9c27b0, #7b1fa2); } /* Purple gradient */
+
+
+        .devil-fruit-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden; /* Ensure floated elements are contained */
+        }
+        .devil-fruit-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+        }
+
+         .devil-fruit-card img {
+            float: left;
+            margin-right: 15px;
+            margin-bottom: 10px;
+            width: 70px; /* Slightly larger */
+            height: auto;
+            object-fit: contain;
+            background-color: #eee; /* Placeholder bg */
+            border: 1px solid #ccc;
+             color: #888;
+             text-align: center;
+             font-size: 0.8em;
+             line-height: 70px;
+         }
+
+        .devil-fruit-card h4 {
+            color: #9c27b0; /* Purple for fruit names */
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+         .devil-fruit-card p {
+             margin-bottom: 0.5rem;
+         }
+         .devil-fruit-card p:last-child {
+             margin-bottom: 0; /* Remove margin from last paragraph */
+         }
+        .devil-fruit-card span {
+            font-style: italic;
+            color: #555;
+        }
+
+
+        .back-button {
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 25px; /* Larger button */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            margin-right: 1rem; /* Add some margin if multiple buttons */
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none; /* In case used as a link */
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
+             transform: scale(1.05);
+             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: auto; /* Push footer to bottom */
+            padding: 1.5rem; /* More padding */
+            background-color: #343a40;
+            color: #ccc;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 10; /* Footer above background */
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2rem; }
+            #character-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; }
+            #character-details img.detail-img { float: none; display: block; margin: 0 auto 1.5rem auto; max-width: 200px; }
+            .info-table th { width: 100px; }
+            .info-table th, .info-table td { padding: 8px 10px; }
+            main { margin: 1.5rem 1rem; padding: 1rem; }
+        }
+         @media (max-width: 480px) {
+             header { height: 180px; }
+             #threejs-container { height: 180px; }
+             header h1 { font-size: 1.7rem; }
+             nav ul li { margin: 0 5px; }
+             nav ul li a { padding: 5px 10px; font-size: 0.9em; }
+             #character-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.8rem; }
+             .character-card { min-height: 160px; }
+             .character-card img { height: 100px; line-height: 100px; }
+             .character-card h3 { font-size: 0.9rem; }
+             #character-details h2, #devil-fruit-list h2 { font-size: 1.5rem; }
+             #character-details h3, #devil-fruit-list h3 { font-size: 1.1rem; }
+             .back-button { padding: 10px 20px; font-size: 0.9rem; }
+             .devil-fruit-card { padding: 1rem; }
+             .devil-fruit-card img { width: 50px; line-height: 50px; margin-right: 10px;}
+             .devil-fruit-card h4 { font-size: 1rem; }
+         }
+
+         /* Simple image error placeholder style */
+         .img-error-placeholder {
+             border: 1px dashed #ccc !important;
+             background-color: #f0f0f0 !important;
+             display: flex !important;
+             align-items: center !important;
+             justify-content: center !important;
+             color: #888 !important;
+             font-size: 0.8em !important;
+             text-align: center;
+             padding: 5px;
+         }
+         .img-error-placeholder::after {
+             content: attr(data-alt-text); /* Display alt text */
+         }
+
+    </style>
+</head>
+<body>
+
+    <div id="threejs-container"></div>
+
+    <header>
+        <h1>One Piece Wiki</h1>
+        <p>Information based on Anime up to Episode 109</p>
+        <nav>
+            <ul>
+                <li><a id="nav-chars" class="active">Characters</a></li>
+                <li><a id="nav-fruits">Devil Fruits</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="content">
+        <!-- Character Grid Area -->
+        <div id="character-grid">
+            <!-- Character cards will be injected here by JS -->
+        </div>
+
+        <!-- Character Details Area (Hidden by default) -->
+        <div id="character-details">
+            <!-- Character details will be injected here by JS -->
+        </div>
+
+        <!-- Devil Fruits Area (Hidden by default) -->
+        <div id="devil-fruit-list">
+             <h2>Known Devil Fruits (Pre-Episode 110)</h2>
+             <div id="fruit-container">
+                 <!-- Devil Fruit details will be injected here by JS -->
+             </div>
+             <button class="back-button" id="df-back-button">Back to Characters</button>
+        </div>
+    </main>
+
+    <footer>
+        Copyright © Ammr Babar. All rights reserved
+    </footer>
+
+    <!-- === SCRIPT PLACED AT THE END OF BODY === -->
+    <script>
+        // Wait for the DOM to be fully loaded before running any JS
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM fully loaded and parsed"); // DEBUG LOG 1
+
+            // --- Three.js Simple Background ---
+            try {
+                if (typeof THREE !== 'undefined') {
+                    const scene = new THREE.Scene();
+                    const container = document.getElementById('threejs-container');
+                    if (container && container.clientWidth >= 0 && container.clientHeight >= 0) { // Allow zero dimensions initially
+                        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight || 1, 0.1, 1000);
+                        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+                        renderer.setSize(container.clientWidth || window.innerWidth, container.clientHeight || 200); // Fallback size
+                        container.appendChild(renderer.domElement);
+
+                        const geometry = new THREE.TorusKnotGeometry(10, 2.5, 120, 12);
+                        const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+                        const torusKnot = new THREE.Mesh(geometry, material);
+                        scene.add(torusKnot);
+                        camera.position.z = 45;
+
+                        const handleResize = () => {
+                            if (container && container.clientWidth > 0 && container.clientHeight > 0) {
+                                const width = container.clientWidth;
+                                const height = container.clientHeight;
+                                renderer.setSize(width, height);
+                                camera.aspect = width / height;
+                                camera.updateProjectionMatrix();
+                            } else if (container) {
+                                // Fallback if container somehow has 0 dimensions later
+                                const width = window.innerWidth;
+                                const height = 200; // Match header height
+                                renderer.setSize(width, height);
+                                camera.aspect = width / height;
+                                camera.updateProjectionMatrix();
+                            }
+                        };
+                        window.addEventListener('resize', handleResize);
+                        handleResize(); // Initial call
+
+                        function animate3D() {
+                            requestAnimationFrame(animate3D);
+                            torusKnot.rotation.x += 0.001;
+                            torusKnot.rotation.y += 0.002;
+                            renderer.render(scene, camera);
+                        }
+                        animate3D();
+                        console.log("Three.js initialized successfully."); // DEBUG LOG
+                    } else {
+                        console.warn("Three.js container not found or has invalid dimensions.");
+                    }
+                } else {
+                    console.warn("Three.js library not loaded.");
+                }
+            } catch (error) {
+                console.error("Error during Three.js initialization:", error); // DEBUG LOG
+            }
+
+
+            // --- Character & Devil Fruit Data (Pre-Episode 110) ---
+             const characters = [
+                 { id: 'luffy', name: 'Monkey D. Luffy', image_url: 'https://static.wikia.nocookie.net/onepiece/images/6/6d/Monkey_D._Luffy_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191518', epithet: 'Straw Hat Luffy', affiliation: 'Straw Hat Pirates (Captain)', devil_fruit: 'Gomu Gomu no Mi (Rubber Human)', abilities: ['Body made of rubber: Immune to blunt attacks (bullets, punches), electricity (mostly).', 'Can stretch limbs for attacks like Gomu Gomu no Pistol, Bazooka, Gatling, Rocket.', 'High tolerance for pain and immense willpower.'], feats: ['Defeated Alvida, Captain Morgan, Buggy the Clown, Captain Kuro, Don Krieg, Arlong.', 'Defeated Wapol on Drum Island.', 'Infiltrated Whiskey Peak.', 'Survived encounter with Mr. 3 on Little Garden.', 'Declared war on Crocodile & began fight (around ep 110).'], stats: { Strength: 80, Speed: 65, Durability: 90, Skill: 60, Intelligence: 30 } },
+                 { id: 'zoro', name: 'Roronoa Zoro', image_url: 'https://static.wikia.nocookie.net/onepiece/images/5/5d/Roronoa_Zoro_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191836', epithet: 'Pirate Hunter Zoro', affiliation: 'Straw Hat Pirates (Swordsman)', devil_fruit: 'None', abilities: ['Master of Santoryu (Three Sword Style).', 'Incredible strength, endurance, and tolerance for pain.', 'Known techniques: Oni Giri, Tora Gari, Santoryu Ogi: Sanzen Sekai (briefly shown vs Mihawk).', 'Poor sense of direction.'], feats: ['Defeated Captain Morgan, Cabaji, Nyaban Brothers (Siam & Buchi), Hatchan.', 'Survived a devastating blow from Dracule Mihawk.', 'Defeated Mr. 5 (Baroque Works Officer).', 'Defeated numerous Baroque Works Millions/Billions.', 'Learned to cut steel (vs Mr. 1 Daz Bonez around ep 118, but foundations laid earlier)'], stats: { Strength: 85, Speed: 70, Durability: 85, Skill: 90, Intelligence: 40 } },
+                 { id: 'nami', name: 'Nami', image_url: 'https://static.wikia.nocookie.net/onepiece/images/0/08/Nami_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20210317160459', epithet: 'Cat Burglar Nami', affiliation: 'Straw Hat Pirates (Navigator)', devil_fruit: 'None', abilities: ['Exceptional Navigator and Cartographer, can sense weather changes.', 'Skilled thief and pickpocket.', 'Uses a three-section Bo Staff for self-defense.', 'Acquired early version of Clima-Tact from Usopp (Alabasta arc, around ep 100+).', 'High intelligence and cunning.'], feats: ['Stole treasure from Buggy.', 'Tricked and robbed various pirates.', 'Created maps of areas visited.', 'Successfully navigated the Straw Hats through treacherous waters.', 'Fought Miss Valentine alongside Vivi (Whiskey Peak).', 'Started learning to use the Clima-Tact (vs Miss Doublefinger happens later).'], stats: { Strength: 30, Speed: 50, Durability: 40, Skill: 60, Intelligence: 95 } },
+                 { id: 'usopp', name: 'Usopp', image_url: 'https://static.wikia.nocookie.net/onepiece/images/a/af/Usopp_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191910', epithet: '"God" Usopp (Self-proclaimed)', affiliation: 'Straw Hat Pirates (Sniper)', devil_fruit: 'None', abilities: ['Incredibly skilled Sniper/Marksman, uses a slingshot (Kabuto) with various ammo (lead stars, rotten eggs, smoke stars, explosive stars - Kayaku Boshi).', 'Compulsive liar, tells tall tales.', 'Inventive, creates gadgets and weapons (like Clima-Tact for Nami).', 'Surprisingly fast runner when scared.'], feats: ['Defended Kaya and Syrup Village (defeated Jango partially, Chu).', 'Helped Nami defeat Miss Valentine.', 'Fought Mr. 5 & Miss Valentine team with Karoo (Little Garden).', 'Key shot against Mr. 3\'s wax structure (Little Garden).', 'Created Nami\'s Clima-Tact.'], stats: { Strength: 35, Speed: 60, Durability: 45, Skill: 85, Intelligence: 70 } },
+                 { id: 'sanji', name: 'Sanji', image_url: 'https://static.wikia.nocookie.net/onepiece/images/0/0e/Sanji_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191849', epithet: 'Black Leg Sanji', affiliation: 'Straw Hat Pirates (Cook)', devil_fruit: 'None', abilities: ['Master of the "Black Leg Style", fighting only with powerful kicks.', 'Superb Chef, knowledgeable about ingredients.', 'Keen intellect, often perceptive and strategic.', 'Strong sense of chivalry, refuses to harm women.', 'Known techniques: Collier, Épaule, Côtelette, Selle, Poitrine, Gigot, Mouton Shot.'], feats: ['Defeated Pearl and fought Don Krieg at the Baratie.', 'Defeated Kuroobi of the Arlong Pirates.', 'Dealt with Baroque Works agents at Whiskey Peak.', 'Adopted "Mr. Prince" alias, outsmarted Crocodile temporarily at Rainbase (around ep 110).'], stats: { Strength: 75, Speed: 80, Durability: 70, Skill: 80, Intelligence: 75 } },
+                 { id: 'chopper', name: 'Tony Tony Chopper', image_url: 'https://static.wikia.nocookie.net/onepiece/images/9/9e/Tony_Tony_Chopper_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191809', epithet: 'Cotton Candy Lover Chopper', affiliation: 'Straw Hat Pirates (Doctor)', devil_fruit: 'Hito Hito no Mi (Human-Human Fruit)', abilities: ['Zoan Devil Fruit user; reindeer who ate the Human-Human fruit.', 'Can transform between Walk Point (reindeer), Brain Point (small hybrid), Heavy Point (humanoid).', 'Developed Rumble Ball drug to access additional transformations (Jumping, Arm, Guard, Horn Points - usage started, mastery developed later).', 'Skilled Doctor.', 'Can understand and talk to animals.'], feats: ['Assisted in defeating Wapol and his subordinates.', 'Treated Nami\'s illness on Drum Island.', 'Joined the Straw Hat Pirates.', 'Began using Rumble Ball transformations in Alabasta.'], stats: { Strength: 70, Speed: 60, Durability: 65, Skill: 80, Intelligence: 85 } },
+                 { id: 'buggy', name: 'Buggy', image_url: 'https://static.wikia.nocookie.net/onepiece/images/8/84/Buggy_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191935', epithet: 'Buggy the Clown', affiliation: 'Buggy Pirates (Captain)', devil_fruit: 'Bara Bara no Mi (Chop-Chop Fruit)', abilities: ['Paramecia; can split his body into pieces and control them levitating (feet must stay grounded or nearby).', 'Immune to slashing/cutting attacks.', 'Uses knives and "Buggy Balls" (powerful cannonballs).'], feats: ['Terrorized Orange Town.', 'Fought Luffy (lost).', 'Escaped capture in Loguetown (with Alvida\'s help).', 'Briefly encountered Ace in Alabasta (searching for Luffy).'], stats: { Strength: 40, Speed: 30, Durability: 30, Skill: 50, Intelligence: 45 } },
+                 { id: 'alvida', name: 'Alvida', image_url: 'https://static.wikia.nocookie.net/onepiece/images/f/fd/Alvida_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20230829233906', epithet: '"Iron Mace" Alvida', affiliation: 'Alvida Pirates (former Captain), Buggy and Alvida Alliance', devil_fruit: 'Sube Sube no Mi (Slip-Slip Fruit)', abilities: ['Paramecia; makes her body extremely slippery.', 'Attacks and objects slide off her skin.', 'Transformed her appearance.', 'Can "skate" on surfaces.', 'Carries iron mace.'], feats: ['First antagonist Luffy defeated (pre-fruit).', 'Tracked Luffy to Loguetown.', 'Allied with Buggy.', 'Helped Buggy escape Smoker in Loguetown.'], stats: { Strength: 35, Speed: 60, Durability: 75, Skill: 30, Intelligence: 40 } },
+                 { id: 'smoker', name: 'Smoker', image_url: 'https://static.wikia.nocookie.net/onepiece/images/2/27/Smoker_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191924', epithet: '"White Chase" Smoker', affiliation: 'Marines (Captain, Loguetown Base -> pursuing Straw Hats)', devil_fruit: 'Moku Moku no Mi (Plume-Plume Fruit)', abilities: ['Logia; can create, control, and turn into smoke.', 'Intangible against most non-elemental/Sea Prism Stone attacks.', 'Can capture opponents with smoke (White Out).', 'Uses a large Jitte tipped with Sea Prism Stone (Kairoseki).'], feats: ['Easily captured Buggy and Alvida (temporarily).', 'Cornered and almost captured Luffy multiple times in Loguetown.', 'Followed the Straw Hats into the Grand Line.', 'Fought Portgas D. Ace briefly in Nanohana, Alabasta.'], stats: { Strength: 75, Speed: 70, Durability: 80, Skill: 80, Intelligence: 70 } },
+                 { id: 'ace', name: 'Portgas D. Ace', image_url: 'https://static.wikia.nocookie.net/onepiece/images/a/a0/Portgas_D._Ace_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191820', epithet: '"Fire Fist" Ace', affiliation: 'Whitebeard Pirates (2nd Division Commander)', devil_fruit: 'Mera Mera no Mi (Flame-Flame Fruit)', abilities: ['Logia; can create, control, and turn into fire.', 'Intangible against most physical attacks.', 'Extremely powerful fire attacks (Hiken - Fire Fist, Higan - Fire Gun).', 'Physically strong.'], feats: ['Introduced searching for Blackbeard.', 'Briefly clashed with Smoker, cancelling his smoke with fire.', 'Showed brotherly connection to Luffy.', 'Destroyed several Baroque Works ships easily.', 'Offered Luffy a place on Whitebeard\'s crew (declined).'], stats: { Strength: 85, Speed: 85, Durability: 85, Skill: 90, Intelligence: 75 } },
+                 { id: 'wapol', name: 'Wapol', image_url: 'https://static.wikia.nocookie.net/onepiece/images/8/8c/Wapol_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191930', epithet: 'Tin-Plate Wapol', affiliation: 'Former King of Drum Kingdom', devil_fruit: 'Baku Baku no Mi (Munch-Munch Fruit)', abilities: ['Paramecia; can eat anything (wood, metal, cannons, people).', 'Can merge consumed objects into his body or create new things (Wapol House, Baku Baku Factory).', 'Wide, metal-reinforced jaw.'], feats: ['Tyrannical ruler of Drum Island.', 'Ate his subordinates Chess and Kuromarimo to combine into Chessmarimo.', 'Fought Luffy and Chopper (lost).'], stats: { Strength: 55, Speed: 20, Durability: 60, Skill: 40, Intelligence: 35 } },
+                 { id: 'dalton', name: 'Dalton', image_url: 'https://static.wikia.nocookie.net/onepiece/images/5/53/Dalton_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429192007', epithet: 'None prominent', affiliation: 'Former Royal Guard of Drum, Leader of Sakura Kingdom (post-Wapol)', devil_fruit: 'Ushi Ushi no Mi, Model: Bison', abilities: ['Zoan; can transform into a full bison or a bison-human hybrid.', 'Increased strength, speed, and durability in transformations.', 'Uses a large spade-like blade.', 'Strong sense of justice.'], feats: ['Protected Dr. Kureha from Wapol.', 'Fought against Wapol\'s forces.', 'Became the respected leader of the renamed Sakura Kingdom.'], stats: { Strength: 70, Speed: 65, Durability: 70, Skill: 60, Intelligence: 60 } },
+                 { id: 'mr5', name: 'Mr. 5', image_url: 'https://static.wikia.nocookie.net/onepiece/images/a/aa/Mr._5_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191944', epithet: 'None prominent', affiliation: 'Baroque Works (Officer Agent)', devil_fruit: 'Bomu Bomu no Mi (Bomb-Bomb Fruit)', abilities: ['Paramecia; makes his entire body and its excretions explosive.', 'Can flick explosive boogers (Nose Fancy Cannon).', 'His breath is explosive (Breeze Breath Bomb).', 'Immune to explosions.', 'Uses a flintlock revolver.'], feats: ['Tasked with eliminating Princess Vivi.', 'Fought Luffy and Zoro at Whiskey Peak and Little Garden (lost).'], stats: { Strength: 50, Speed: 40, Durability: 65, Skill: 45, Intelligence: 40 } },
+                 { id: 'missvalentine', name: 'Miss Valentine', image_url: 'https://static.wikia.nocookie.net/onepiece/images/7/7d/Miss_Valentine_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191949', epithet: 'None prominent', affiliation: 'Baroque Works (Officer Agent)', devil_fruit: 'Kilo Kilo no Mi (Kilo-Kilo Fruit)', abilities: ['Paramecia; can freely change her body weight from 1 kilogram to 10,000 kilograms.', 'Uses low weight to float with her umbrella, then drastically increases weight to crush opponents (10,000 Kilo Press).'], feats: ['Partnered with Mr. 5.', 'Fought Nami and Vivi at Whiskey Peak, later Usopp and Nami at Little Garden (lost).'], stats: { Strength: 25, Speed: 30, Durability: 35, Skill: 55, Intelligence: 45 } },
+                 { id: 'mr3', name: 'Mr. 3 (Galdino)', image_url: 'https://static.wikia.nocookie.net/onepiece/images/3/39/Mr._3_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429192002', epithet: 'The Strategist (Self-proclaimed)', affiliation: 'Baroque Works (Officer Agent)', devil_fruit: 'Doru Doru no Mi (Wax-Wax Fruit)', abilities: ['Paramecia; can produce and manipulate candle wax from his body.', 'Wax hardens quickly into steel-like strength.', 'Can create wax clones (Candle Champion), restraints, keys, structures (Giant Wax Service Set).', 'Wax can be ignited.', 'Wax is vulnerable to heat/fire.'], feats: ['Received orders directly from Crocodile.', 'Captured Zoro, Nami, Vivi, and Brogy the giant in a wax structure.', 'Fought Luffy, Usopp, and Karoo (lost).', 'Encountered Straw Hats again in Alabasta.'], stats: { Strength: 30, Speed: 30, Durability: 40, Skill: 75, Intelligence: 70 } },
+                 { id: 'robin', name: 'Miss All Sunday (Nico Robin)', image_url: 'https://static.wikia.nocookie.net/onepiece/images/7/73/Nico_Robin_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20210317160520', epithet: 'Miss All Sunday', affiliation: 'Baroque Works (Vice President)', devil_fruit: 'Hana Hana no Mi (Flower-Flower Fruit)', abilities: ['Paramecia; can replicate and sprout parts of her body (especially arms, hands, eyes) from any surface, including other people.', 'Can use sprouted limbs to restrain (Clutch), attack (Slap), or observe (sprouting eyes/ears).', 'Highly intelligent, reads Poneglyphs (secretly).', 'Calm and enigmatic demeanor.'], feats: ['Appeared before the Straw Hats after Whiskey Peak.', 'Gave the Straw Hats an Eternal Pose to a safer island (destroyed by Luffy).', 'Met the Straw Hats again in Alabasta (Rainbase).', 'Saved Luffy from drowning in quicksand near Rainbase (around ep 110).', 'Interacted with Crocodile, showing complex relationship.'], stats: { Strength: 40, Speed: 50, Durability: 50, Skill: 90, Intelligence: 98 } },
+                 { id: 'crocodile', name: 'Sir Crocodile', image_url: 'https://static.wikia.nocookie.net/onepiece/images/9/94/Crocodile_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191859', epithet: 'Mr. 0', affiliation: 'One of the Seven Warlords of the Sea (Shichibukai), Baroque Works (President)', devil_fruit: 'Suna Suna no Mi (Sand-Sand Fruit)', abilities: ['Logia; can create, control, and turn into sand.', 'Intangible against most attacks unless moisture/liquid is involved.', 'Can absorb moisture from anything with his right hand (Desert Spada).', 'Can create sandstorms (Sables), quicksand pits.', 'Large golden hook on his left hand (poisonous - revealed later).', 'Highly intelligent and manipulative strategist.'], feats: ['Secretly orchestrated the Alabasta civil war.', 'Leader of the powerful Baroque Works organization.', 'Recognized as one of the Shichibukai.', 'Defeated Luffy easily in their first encounter by dehydrating him (around ep 110).'], stats: { Strength: 80, Speed: 75, Durability: 90, Skill: 95, Intelligence: 95 } },
+                 { id: 'vivi', name: 'Nefertari Vivi', image_url: 'https://static.wikia.nocookie.net/onepiece/images/b/bd/Nefertari_Vivi_Anime_Pre_Timeskip_Infobox.png/revision/latest/scale-to-width-down/212?cb=20200429191918', epithet: 'Miss Wednesday (former)', affiliation: 'Princess of Alabasta Kingdom, Straw Hat Pirates (temporary)', devil_fruit: 'None', abilities: ['Uses Peacock Slashers (Kujakki Slashers) - small blades attached to strings on her fingers.', 'Highly dedicated to her country and people.', 'Brave and determined.', 'Rides Karoo, her Super Spot-Billed Duck companion.'], feats: ['Infiltrated Baroque Works as Miss Wednesday.', 'Traveled with the Straw Hats towards Alabasta.', 'Attempted to stop the civil war.', 'Fought alongside Straw Hats against Baroque Works agents.'], stats: { Strength: 25, Speed: 40, Durability: 35, Skill: 50, Intelligence: 70 } }
+             ]; // (Keep data collapsed for brevity)
+
+            const devilFruits = [
+                { name: 'Gomu Gomu no Mi', type: 'Paramecia', user: 'Monkey D. Luffy', description: 'Grants the user\'s body the properties of rubber, allowing stretching and immunity to blunt force and electricity.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/e/e7/Gomu_Gomu_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20211228002347' },
+                { name: 'Bara Bara no Mi', type: 'Paramecia', user: 'Buggy', description: 'Allows the user to split their body into pieces and control them independently (except feet). Grants immunity to cutting/slashing attacks.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/c/c8/Bara_Bara_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20230902015622' },
+                { name: 'Sube Sube no Mi', type: 'Paramecia', user: 'Alvida', description: 'Makes the user\'s body extremely slippery, causing attacks and objects to slide off. Also caused a significant change in the user\'s appearance.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/3/39/Sube_Sube_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20230901225945' },
+                { name: 'Moku Moku no Mi', type: 'Logia', user: 'Smoker', description: 'Allows the user to create, control, and transform into smoke, granting intangibility against most non-Sea Prism Stone attacks.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/6/6c/Moku_Moku_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20221013143649' },
+                { name: 'Mera Mera no Mi', type: 'Logia', user: 'Portgas D. Ace', description: 'Allows the user to create, control, and transform into fire, granting intangibility and powerful pyrokinetic attacks.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/8/89/Mera_Mera_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20230810031121' },
+                { name: 'Baku Baku no Mi', type: 'Paramecia', user: 'Wapol', description: 'Allows the user to eat virtually anything and incorporate it into their body or merge eaten things.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/2/26/Baku_Baku_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20210724163310' },
+                { name: 'Hito Hito no Mi', type: 'Zoan', user: 'Tony Tony Chopper', description: 'Allows an animal who eats it to gain human intelligence and the ability to transform into a human or human-hybrid form.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/f/f6/Hito_Hito_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20210523213748' },
+                { name: 'Ushi Ushi no Mi, Model: Bison', type: 'Zoan', user: 'Dalton', description: 'Allows the user to transform into a full bison or a bison-human hybrid, gaining enhanced strength and durability.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/8/89/Ushi_Ushi_no_Mi%2C_Model_Bison_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20230109022653' },
+                { name: 'Bomu Bomu no Mi', type: 'Paramecia', user: 'Mr. 5', description: 'Makes the user\'s entire body and bodily fluids explosive, granting immunity to explosions.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/0/04/Bomu_Bomu_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20220907171823' },
+                { name: 'Kilo Kilo no Mi', type: 'Paramecia', user: 'Miss Valentine', description: 'Allows the user to change their body weight between 1 and 10,000 kilograms without changing size.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/6/6e/Kilo_Kilo_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20220527202926' },
+                { name: 'Doru Doru no Mi', type: 'Paramecia', user: 'Mr. 3', description: 'Allows the user to produce and manipulate candle wax, which can harden to steel-like strength but is weak to fire/heat.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/b/ba/Doru_Doru_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20230103220710' },
+                { name: 'Hana Hana no Mi', type: 'Paramecia', user: 'Miss All Sunday (Nico Robin)', description: 'Allows the user to replicate and sprout parts of their body (like arms, eyes) from any surface.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/3/3a/Hana_Hana_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20230714023028' },
+                { name: 'Suna Suna no Mi', type: 'Logia', user: 'Sir Crocodile', description: 'Allows the user to create, control, and transform into sand. Can absorb moisture. Weakness to liquids known by ep 110.', image_url: 'https://static.wikia.nocookie.net/onepiece/images/7/74/Suna_Suna_no_Mi_Anime_Infobox.png/revision/latest/scale-to-width-down/150?cb=20230615014356' },
+            ]; // (Keep data collapsed for brevity)
+
+
+            // --- DOM Elements ---
+            // Defined inside DOMContentLoaded to ensure elements exist
+            const characterGrid = document.getElementById('character-grid');
+            const characterDetailsContainer = document.getElementById('character-details');
+            const devilFruitListContainer = document.getElementById('devil-fruit-list');
+            const fruitContainer = document.getElementById('fruit-container');
+            const navCharsLink = document.getElementById('nav-chars');
+            const navFruitsLink = document.getElementById('nav-fruits');
+            const dfBackButton = document.getElementById('df-back-button');
+
+            // --- Sanity Check: Log if elements were found ---
+             console.log("Element check:", {
+                 characterGrid: !!characterGrid, // true if found, false if null
+                 characterDetailsContainer: !!characterDetailsContainer,
+                 devilFruitListContainer: !!devilFruitListContainer,
+                 fruitContainer: !!fruitContainer,
+                 navCharsLink: !!navCharsLink,
+                 navFruitsLink: !!navFruitsLink,
+                 dfBackButton: !!dfBackButton
+             }); // DEBUG LOG 2
+
+
+             // Image placeholder / error handler
+            const handleImageError = (imgElement) => {
+                try {
+                    if (!imgElement) return;
+                    console.log(`Image failed to load: ${imgElement.src || 'No src'}. Applying placeholder.`); // DEBUG LOG
+                    imgElement.onerror = null; // Prevent infinite loop
+                    imgElement.src = ""; // Remove broken src
+                    imgElement.classList.add('img-error-placeholder'); // Use CSS class for styling
+                    // Store original alt text in data attribute for CSS to potentially use
+                    imgElement.setAttribute('data-alt-text', imgElement.alt || 'Image unavailable');
+                } catch (e) {
+                    console.error("Error within handleImageError:", e);
+                }
+            };
+
+
+            // --- Functions ---
+
+            function renderCharacterGrid() {
+                console.log("Attempting to render Character Grid..."); // DEBUG LOG 3
+                // Ensure required elements exist before proceeding
+                if (!characterGrid || !characterDetailsContainer || !devilFruitListContainer || !navCharsLink || !navFruitsLink) {
+                    console.error("Cannot render character grid - one or more essential elements not found!");
+                    return;
+                }
+
+                try {
+                    characterGrid.innerHTML = ''; // Clear existing grid
+                    characterDetailsContainer.style.display = 'none';
+                    devilFruitListContainer.style.display = 'none';
+                    characterGrid.style.display = 'grid'; // Ensure grid is visible
+
+                    navCharsLink.classList.add('active');
+                    navFruitsLink.classList.remove('active');
+
+                    console.log(`Processing ${characters.length} characters...`); // DEBUG LOG
+
+                    characters.forEach((char, index) => {
+                        // console.log(`Creating card for: ${char.name}`); // Optional detailed log
+                        const card = document.createElement('div');
+                        card.className = 'character-card';
+                        card.setAttribute('data-id', char.id);
+
+                        const img = document.createElement('img');
+                        img.src = char.image_url;
+                        img.alt = char.name;
+                        img.loading = 'lazy';
+                        img.onerror = () => handleImageError(img); // Assign error handler
+
+                        const nameHeader = document.createElement('h3');
+                        nameHeader.textContent = char.name;
+
+                        card.appendChild(img);
+                        card.appendChild(nameHeader);
+
+                        card.addEventListener('click', () => showCharacterDetails(char.id));
+                        characterGrid.appendChild(card);
+                    });
+                    console.log("Character Grid rendering completed."); // DEBUG LOG 4
+                } catch (error) {
+                    console.error("Error during renderCharacterGrid execution:", error); // DEBUG LOG - Catch errors within the function
+                }
+            }
+
+             function createStatBar(label, value, className = '') {
+                 // Added check for valid number, default to 0
+                 const numericValue = typeof value === 'number' && !isNaN(value) ? value : 0;
+                 const percentage = Math.max(0, Math.min(100, numericValue));
+                 return `
+                     <tr>
+                         <th>${label}</th>
+                         <td>
+                             <div class="stat-bar-container">
+                                 <div class="stat-bar ${className}" style="width: ${percentage}%;"><span>${percentage}%</span></div>
+                             </div>
+                         </td>
+                     </tr>
+                 `;
+             }
+
+
+            function showCharacterDetails(id) {
+                console.log(`Attempting to show details for ID: ${id}`); // DEBUG LOG
+                if (!characterDetailsContainer || !characterGrid || !devilFruitListContainer) {
+                     console.error("Cannot show details - container elements missing.");
+                     return;
+                }
+                const character = characters.find(char => char.id === id);
+                if (!character) {
+                    console.error("Character not found for ID:", id);
+                    return;
+                }
+
+                try {
+                    let infoTableHTML = '<table class="info-table">';
+                    infoTableHTML += `<tr><th>Name</th><td>${character.name}</td></tr>`;
+                    if (character.epithet) infoTableHTML += `<tr><th>Epithet</th><td>${character.epithet}</td></tr>`;
+                    if (character.affiliation) infoTableHTML += `<tr><th>Affiliation</th><td>${character.affiliation}</td></tr>`;
+                    infoTableHTML += `<tr><th>Devil Fruit</th><td>${character.devil_fruit || 'None'}</td></tr>`;
+                    infoTableHTML += '</table>';
+
+                    let statsHTML = '';
+                    if (character.stats) {
+                        statsHTML += '<h3>Stats (Estimated Pre-Ep 110)</h3>';
+                        statsHTML += '<table class="info-table stats-table">';
+                        statsHTML += createStatBar('Strength', character.stats.Strength, 'strength');
+                        statsHTML += createStatBar('Speed', character.stats.Speed, 'speed');
+                        statsHTML += createStatBar('Durability', character.stats.Durability, 'durability');
+                        statsHTML += createStatBar('Skill/Technique', character.stats.Skill, 'skill');
+                        statsHTML += createStatBar('Intelligence', character.stats.Intelligence, 'intelligence');
+                        statsHTML += '</table>';
+                    }
+
+                    const detailImg = document.createElement('img');
+                    detailImg.src = character.image_url;
+                    detailImg.alt = character.name;
+                    detailImg.className = 'detail-img';
+                    detailImg.onerror = () => handleImageError(detailImg);
+
+                    characterDetailsContainer.innerHTML = `
+                        <button class="back-button char-back-button">← Back to Grid</button>
+                        <h2>${character.name}</h2>
+                        <!-- Image will be prepended -->
+                        ${infoTableHTML}
+                        <div style="clear: both;"></div>
+
+                        <h3>Abilities & Powers</h3>
+                        <ul>${(character.abilities || []).map(ability => `<li>${ability}</li>`).join('')}</ul>
+
+                        <h3>Notable Feats (Pre-Ep 110)</h3>
+                        <ul>${(character.feats || []).map(feat => `<li>${feat}</li>`).join('')}</ul>
+
+                        ${statsHTML}
+
+                        <button class="back-button char-back-button">← Back to Grid</button>
+                    `;
+                    characterDetailsContainer.prepend(detailImg); // Prepend image
+
+                    // Add event listeners to the newly created back buttons
+                    characterDetailsContainer.querySelectorAll('.char-back-button').forEach(button => {
+                        button.removeEventListener('click', showMainGrid); // Remove old listener if any
+                        button.addEventListener('click', showMainGrid); // Add new listener
+                    });
+
+                    characterGrid.style.display = 'none';
+                    devilFruitListContainer.style.display = 'none';
+                    characterDetailsContainer.style.display = 'block';
+                    window.scrollTo(0, 0); // Scroll to top
+                    console.log(`Details shown for: ${character.name}`); // DEBUG LOG
+                } catch (error) {
+                    console.error(`Error during showCharacterDetails for ${id}:`, error);
+                }
+            }
+
+            function renderDevilFruitList() {
+                 console.log("Attempting to render Devil Fruit List..."); // DEBUG LOG
+                 if (!devilFruitListContainer || !fruitContainer || !characterGrid || !characterDetailsContainer || !navCharsLink || !navFruitsLink) {
+                     console.error("Cannot render devil fruit list - one or more essential elements not found!");
+                     return;
+                 }
+
+                 try {
+                    characterGrid.style.display = 'none';
+                    characterDetailsContainer.style.display = 'none';
+                    navCharsLink.classList.remove('active');
+                    navFruitsLink.classList.add('active');
+
+                    fruitContainer.innerHTML = ''; // Clear previous fruit list
+                    devilFruits.sort((a, b) => a.name.localeCompare(b.name)).forEach(fruit => {
+                        const card = document.createElement('div');
+                        card.className = 'devil-fruit-card';
+
+                        const img = document.createElement('img');
+                        img.src = fruit.image_url || '';
+                        img.alt = fruit.name;
+                        img.loading = 'lazy';
+                        img.onerror = () => handleImageError(img);
+
+                        card.innerHTML = `
+                            <h4>${fruit.name}</h4>
+                            <p><strong>Type:</strong> ${fruit.type}</p>
+                            <p><strong>Known User (Pre-110):</strong> ${fruit.user || 'Unknown'}</p>
+                            <p>${fruit.description}</p>
+                            <div style="clear:both;"></div>
+                        `;
+                        card.prepend(img);
+                        fruitContainer.appendChild(card);
+                    });
+
+                    devilFruitListContainer.style.display = 'block';
+                    window.scrollTo(0, 0);
+                    console.log("Devil Fruit list rendering complete."); // DEBUG LOG
+                 } catch (error) {
+                     console.error("Error during renderDevilFruitList execution:", error);
+                 }
+            }
+
+            function showMainGrid() {
+                 console.log("Attempting to show main grid..."); // DEBUG LOG
+                 renderCharacterGrid(); // Re-render to ensure correct state and clear details
+            }
+
+
+            // --- Event Listeners ---
+            // Add checks to ensure elements exist before adding listeners
+            if (navCharsLink) {
+                navCharsLink.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent default anchor behavior
+                    showMainGrid();
+                });
+            } else { console.error("navCharsLink not found for event listener."); }
+
+            if (navFruitsLink) {
+                navFruitsLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    renderDevilFruitList();
+                });
+            } else { console.error("navFruitsLink not found for event listener."); }
+
+            if (dfBackButton) {
+                dfBackButton.addEventListener('click', showMainGrid);
+            } else { console.error("Devil Fruit back button (dfBackButton) not found"); }
+
+
+            // --- Initial Load ---
+            console.log("Calling initial renderCharacterGrid()..."); // DEBUG LOG 5
+            renderCharacterGrid(); // Show character grid by default
+
+        }); // End of DOMContentLoaded listener
+
+    </script>
+
+</body>
+</html>

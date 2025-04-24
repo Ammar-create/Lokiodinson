@@ -1,0 +1,250 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ammar's Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9f9f9;
+      color: #000;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: #777;
+      margin-bottom: 2rem;
+    }
+    .welcome {
+      font-size: 1.5rem;
+      font-weight: 600;
+      animation: fadeIn 2s forwards;
+      opacity: 0;
+    }
+    @keyframes fadeIn {
+      to {opacity: 1;}
+    }
+    .login-section {
+      margin-top: 2rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-btn {
+      padding: 1rem;
+      background: #efefef;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1rem;
+    }
+    .login-btn:hover {
+      background: #e0e0e0;
+    }
+    .main-content {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
+    }
+    .edit-panel {
+      align-self: flex-end;
+      margin-bottom: 1rem;
+    }
+    .edit-panel button {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .buttons-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 1rem;
+    }
+    .hub-btn {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      cursor: pointer;
+    }
+    .hub-btn span {
+      flex-grow: 1;
+    }
+    .controls {
+      display: none;
+      gap: 0.3rem;
+    }
+    .controls button {
+      font-size: 0.9rem;
+      border: none;
+      background: #eee;
+      border-radius: 6px;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+    }
+    footer {
+      margin-top: 3rem;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ammar's Hub</h1>
+  <div class="subtitle">Your gateway to organized fandom & personal projects</div>
+  <div class="welcome" id="welcome">Welcome to Ammar'Hub</div>  <div class="login-section" id="loginSection">
+    <button class="login-btn" onclick="enterAs('Ammar')">👑 Ammar</button>
+    <div id="userList"></div>
+    <button class="login-btn" onclick="addUser()">+ Add New User</button>
+  </div>  <div class="main-content" id="mainContent">
+    <div class="edit-panel">
+      <button onclick="toggleEdit()">Edit</button>
+    </div>
+    <div class="buttons-container" id="hubButtons"></div>
+    <button class="login-btn" onclick="addButton()">+ Add</button>
+  </div>  <footer>&copy; <span id="year"></span> Ammar. All rights reserved.</footer>  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const buttons = JSON.parse(localStorage.getItem("buttons") || JSON.stringify([
+      {name: "Watchlist", path: "Watchlist/index.html"},
+      {name: "One Piece Wiki", path: "OnePieceWiki/OnePieceWiki.html"}
+    ]));
+    let currentUser = null;
+    let editMode = false;
+
+    setTimeout(() => document.getElementById("loginSection").style.display = "flex", 2000);
+
+    function renderUsers() {
+      const container = document.getElementById("userList");
+      container.innerHTML = '';
+      users.forEach((name, i) => {
+        const btn = document.createElement("button");
+        btn.className = "login-btn";
+        btn.innerHTML = `${name} <span onclick="renameUser(${i}, event)">✏️</span> <span onclick="deleteUser(${i}, event)">🗑️</span>`;
+        btn.onclick = () => enterAs(name);
+        container.appendChild(btn);
+      });
+    }
+
+    function enterAs(name) {
+      currentUser = name;
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("mainContent").style.display = "flex";
+      renderButtons();
+    }
+
+    function addUser() {
+      const name = prompt("Enter new user name:");
+      if (!name || name === "Ammar") return;
+      users.push(name);
+      localStorage.setItem("users", JSON.stringify(users));
+      renderUsers();
+    }
+
+    function renameUser(i, e) {
+      e.stopPropagation();
+      const newName = prompt("Rename user:", users[i]);
+      if (newName && newName !== "Ammar") {
+        users[i] = newName;
+        localStorage.setItem("users", JSON.stringify(users));
+        renderUsers();
+      }
+    }
+
+    function deleteUser(i, e) {
+      e.stopPropagation();
+      if (users[i] !== "Ammar") {
+        users.splice(i, 1);
+        localStorage.setItem("users", JSON.stringify(users));
+        renderUsers();
+      }
+    }
+
+    function renderButtons() {
+      const container = document.getElementById("hubButtons");
+      container.innerHTML = '';
+      buttons.forEach((btn, i) => {
+        const el = document.createElement("div");
+        el.className = "hub-btn";
+        el.onclick = () => { if (!editMode) location.href = btn.path; };
+
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = btn.name;
+        el.appendChild(nameSpan);
+
+        const controls = document.createElement("div");
+        controls.className = "controls";
+
+        ["↑", "↓", "✏️", "🗑️"].forEach((icon, j) => {
+          const b = document.createElement("button");
+          b.textContent = icon;
+          b.onclick = (e) => handleButtonControl(i, icon, e);
+          controls.appendChild(b);
+        });
+
+        if (editMode) controls.style.display = "flex";
+        el.appendChild(controls);
+
+        container.appendChild(el);
+      });
+    }
+
+    function toggleEdit() {
+      editMode = !editMode;
+      renderButtons();
+    }
+
+    function handleButtonControl(i, action, e) {
+      e.stopPropagation();
+      if (action === "↑" && i > 0) [buttons[i], buttons[i-1]] = [buttons[i-1], buttons[i]];
+      if (action === "↓" && i < buttons.length - 1) [buttons[i], buttons[i+1]] = [buttons[i+1], buttons[i]];
+      if (action === "✏️") {
+        const name = prompt("New name:", buttons[i].name);
+        const path = prompt("New path:", buttons[i].path);
+        if (name && path) buttons[i] = {name, path};
+      }
+      if (action === "🗑️") buttons.splice(i, 1);
+      localStorage.setItem("buttons", JSON.stringify(buttons));
+      renderButtons();
+    }
+
+    function addButton() {
+      const name = prompt("Enter button name:");
+      const path = prompt("Enter button path:");
+      if (name && path) {
+        buttons.push({name, path});
+        localStorage.setItem("buttons", JSON.stringify(buttons));
+        renderButtons();
+      }
+    }
+
+    renderUsers();
+  </script></body>
+</html>
