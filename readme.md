@@ -1,0 +1,1 @@
+This is a text-to-audio generator. It uses OpenAI and Eleven Labs models for audio generation. It is free to use. It has more than 50 different voices that you can generate for free. Just bring your own API key from Pollination AI for better rate limits 🙈
