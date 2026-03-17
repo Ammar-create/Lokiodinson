@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Voice Studio · Pollinations.ai</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080b12; --surface: #0e1420; --card: #121926;
+    --border: #1c2535; --accent: #4f8ef7; --accent2: #7c5af5;
+    --text: #d8e2f0; --muted: #445166; --dim: #1e2b3e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-weight: 300;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 52px 20px 60px;
+  }
+  body::before {
+    content: ''; position: fixed; top: -200px; left: 50%;
+    transform: translateX(-50%); width: 700px; height: 400px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(79,142,247,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header { text-align: center; margin-bottom: 40px; animation: fadeUp 0.5s ease both; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 5px; color: var(--muted); text-transform: uppercase; margin-bottom: 16px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  h1 {
+    font-family: 'DM Serif Display', serif; font-size: clamp(32px, 5vw, 54px); line-height: 1.1;
+    background: linear-gradient(135deg, #a8c4ff 0%, #4f8ef7 40%, #7c5af5 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { font-size: 13px; color: var(--muted); letter-spacing: 1.5px; margin-top: 10px; text-transform: uppercase; }
+  .wrap { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* Key banner */
+  .key-banner {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 22px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    animation: fadeUp 0.5s 0.05s ease both;
+  }
+  .key-banner-left { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 180px; }
+  .key-banner-title { font-size: 12px; color: var(--accent); letter-spacing: 1px; }
+  .key-banner-sub { font-size: 11px; color: var(--muted); }
+  .key-input {
+    flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 14px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s;
+  }
+  .key-input:focus { border-color: #2a3a55; }
+  .key-input::placeholder { color: var(--muted); }
+  .key-status {
+    font-size: 11px; white-space: nowrap; padding: 5px 10px;
+    border-radius: 6px; border: 1px solid var(--border);
+  }
+  .key-status.default { color: var(--muted); border-color: var(--border); }
+  .key-status.custom  { color: #6abf69; border-color: #1e3d1e; background: rgba(100,180,80,0.07); }
+
+  /* Card */
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+  .section { padding: 24px 26px 0; }
+  .section-label {
+    font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase;
+    margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .char-counter { color: var(--dim); font-size: 11px; }
+  textarea {
+    width: 100%; min-height: 130px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 12px; outline: none; resize: vertical; padding: 14px 16px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.7; font-weight: 300;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: #2a3a55; }
+  textarea::placeholder { color: var(--muted); font-style: italic; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+  .tab-btn {
+    padding: 6px 16px; border-radius: 8px; border: 1px solid transparent;
+    background: transparent; color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 12px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px;
+  }
+  .tab-btn:hover { color: #7a9ac0; }
+  .tab-btn.active { background: rgba(79,142,247,0.1); border-color: var(--accent); color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Voice grid */
+  .voice-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px; margin-bottom: 20px;
+  }
+  .voice-btn {
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 12px; cursor: pointer; transition: all 0.15s; text-align: left;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .voice-btn:hover { border-color: #2a3a55; color: #7a9ac0; }
+  .voice-btn.active { border-color: var(--accent); background: rgba(79,142,247,0.08); color: var(--accent); }
+  .voice-name { font-weight: 500; font-size: 13px; }
+  .voice-tag { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; }
+
+  .action-bar {
+    padding: 18px 26px; border-top: 1px solid var(--border);
+    background: var(--surface); display: flex; align-items: center; gap: 12px;
+  }
+  .error-msg { color: #e06060; font-size: 13px; flex: 1; }
+  .spacer { flex: 1; }
+  .gen-btn {
+    background: linear-gradient(135deg, #4f8ef7, #7c5af5); border: none;
+    border-radius: 12px; padding: 13px 40px; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+    cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.2s, transform 0.15s;
+    box-shadow: 0 4px 20px rgba(79,142,247,0.25);
+  }
+  .gen-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .gen-btn:active { transform: translateY(0); }
+  .gen-btn:disabled { background: var(--dim); color: var(--muted); cursor: not-allowed; box-shadow: none; transform: none; }
+
+  /* Spinner */
+  .spinner-section {
+    display: none; flex-direction: column; align-items: center; padding: 36px; gap: 14px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  }
+  .ring { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+  .spin-text { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+
+  /* Player */
+  .player-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    padding: 28px 26px; display: none; animation: fadeUp 0.4s ease both;
+  }
+  .player-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .player-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--text); }
+  .player-meta { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+  .waveform { display: flex; align-items: center; gap: 3px; height: 44px; margin-bottom: 22px; }
+  .bar { flex: 1; border-radius: 3px; background: linear-gradient(180deg, #4f8ef7, #7c5af5); opacity: 0.4; transition: height 0.08s, opacity 0.08s; }
+  .controls { display: flex; align-items: center; gap: 14px; }
+  .play-btn {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, #4f8ef7, #7c5af5); border: none;
+    cursor: pointer; color: #fff; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(79,142,247,0.3); transition: opacity 0.2s; flex-shrink: 0;
+  }
+  .play-btn:hover { opacity: 0.85; }
+  .progress-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; cursor: pointer; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #4f8ef7, #7c5af5); border-radius: 2px; width: 0%; pointer-events: none; }
+  .time { font-size: 12px; color: var(--muted); white-space: nowrap; min-width: 80px; text-align: right; }
+  .dl-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 16px; color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .dl-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  footer { margin-top: 28px; font-size: 10px; color: var(--dim); letter-spacing: 3px; text-transform: uppercase; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow"><span class="dot"></span> Powered by Pollinations.ai</div>
+  <h1>AI Voice Studio</h1>
+  <p class="subtitle">OpenAI TTS + ElevenLabs · 40+ Voices · Instant Audio</p>
+</header>
+
+<div class="wrap">
+
+  <!-- Key banner -->
+  <div class="key-banner">
+    <div class="key-banner-left">
+      <span class="key-banner-title">Better Rate Limits?</span>
+      <span class="key-banner-sub">Enter your own Pollinations publishable key to use your personal quota</span>
+    </div>
+    <input class="key-input" id="customKey" type="text" placeholder="pk_your_publishable_key_here..." autocomplete="off" oninput="onKeyInput()"/>
+    <span class="key-status default" id="keyStatus">Using default key</span>
+  </div>
+
+  <div class="card">
+    <div class="section">
+      <div class="section-label">
+        <span>Your Text</span>
+        <span class="char-counter" id="charCount">0 / 2000</span>
+      </div>
+      <textarea id="inputText" maxlength="2000" placeholder="Type or paste the text you want to convert to speech..."></textarea>
+    </div>
+
+    <div class="section" style="padding-top:22px;">
+      <div class="section-label">Choose a Voice</div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('openai', this)">OpenAI Voices</button>
+        <button class="tab-btn" onclick="switchTab('elevenlabs', this)">ElevenLabs Voices</button>
+      </div>
+      <div class="tab-panel active" id="tab-openai">
+        <div class="voice-grid" id="grid-openai"></div>
+      </div>
+      <div class="tab-panel" id="tab-elevenlabs">
+        <div class="voice-grid" id="grid-elevenlabs"></div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <span class="error-msg" id="errorMsg"></span>
+      <span class="spacer"></span>
+      <button class="gen-btn" id="genBtn" onclick="generate()">Generate Voice</button>
+    </div>
+  </div>
+
+  <div class="spinner-section" id="spinnerSection">
+    <div class="ring"></div>
+    <span class="spin-text">Generating audio...</span>
+  </div>
+
+  <div class="player-card" id="playerCard">
+    <div class="player-top">
+      <div>
+        <div class="player-title">Generated Audio</div>
+        <div class="player-meta" id="playerMeta">tts-1 · mp3</div>
+      </div>
+      <button class="dl-btn" onclick="downloadAudio()">Download MP3</button>
+    </div>
+    <div class="waveform" id="waveform"></div>
+    <div class="controls">
+      <button class="play-btn" id="playBtn" onclick="togglePlay()">&#9654;</button>
+      <div class="progress-wrap" onclick="seek(event)">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span class="time" id="timeDisplay">0:00 / 0:00</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>AI Voice · No data stored · Free to use</footer>
+<audio id="audioEl"></audio>
+
+<script>
+  const DEFAULT_KEY = "pk_LUy70Tu8OwLI1HrU";
+
+  const OPENAI_VOICES = [
+    { id: "alloy",   label: "Alloy",   tag: "Neutral" },
+    { id: "echo",    label: "Echo",    tag: "Male" },
+    { id: "fable",   label: "Fable",   tag: "Storyteller" },
+    { id: "onyx",    label: "Onyx",    tag: "Deep" },
+    { id: "nova",    label: "Nova",    tag: "Female" },
+    { id: "shimmer", label: "Shimmer", tag: "Soft" },
+    { id: "ash",     label: "Ash",     tag: "Calm" },
+    { id: "ballad",  label: "Ballad",  tag: "Melodic" },
+    { id: "coral",   label: "Coral",   tag: "Warm" },
+    { id: "sage",    label: "Sage",    tag: "Clear" },
+    { id: "verse",   label: "Verse",   tag: "Dynamic" },
+  ];
+
+  const ELEVENLABS_VOICES = [
+    { id: "rachel",    label: "Rachel",    tag: "Female" },
+    { id: "domi",      label: "Domi",      tag: "Female" },
+    { id: "bella",     label: "Bella",     tag: "Female" },
+    { id: "elli",      label: "Elli",      tag: "Female" },
+    { id: "charlotte", label: "Charlotte", tag: "Female" },
+    { id: "dorothy",   label: "Dorothy",   tag: "Female" },
+    { id: "sarah",     label: "Sarah",     tag: "Female" },
+    { id: "emily",     label: "Emily",     tag: "Female" },
+    { id: "lily",      label: "Lily",      tag: "Female" },
+    { id: "matilda",   label: "Matilda",   tag: "Female" },
+    { id: "adam",      label: "Adam",      tag: "Male" },
+    { id: "antoni",    label: "Antoni",    tag: "Male" },
+    { id: "arnold",    label: "Arnold",    tag: "Male" },
+    { id: "josh",      label: "Josh",      tag: "Male" },
+    { id: "sam",       label: "Sam",       tag: "Male" },
+    { id: "daniel",    label: "Daniel",    tag: "Male" },
+    { id: "charlie",   label: "Charlie",   tag: "Male" },
+    { id: "james",     label: "James",     tag: "Male" },
+    { id: "fin",       label: "Fin",       tag: "Male" },
+    { id: "callum",    label: "Callum",    tag: "Male" },
+    { id: "liam",      label: "Liam",      tag: "Male" },
+    { id: "george",    label: "George",    tag: "Male" },
+    { id: "brian",     label: "Brian",     tag: "Male" },
+    { id: "bill",      label: "Bill",      tag: "Male" },
+  ];
+
+  const BAR_HEIGHTS = [6,10,18,28,22,14,8,20,32,24,16,10,26,36,28,18,12,22,34,26,16,8,18,30,20,14,10,24,16,8];
+
+  let selectedVoice = OPENAI_VOICES[0].id;
+  let audioBlob = null;
+  let audioURL = null;
+  const audioEl = document.getElementById("audioEl");
+
+  function buildGrid(voices, gridId) {
+    const grid = document.getElementById(gridId);
+    voices.forEach((v, i) => {
+      const btn = document.createElement("button");
+      btn.className = "voice-btn" + (gridId === "grid-openai" && i === 0 ? " active" : "");
+      btn.dataset.voice = v.id;
+      btn.innerHTML = `<span class="voice-name">${v.label}</span><span class="voice-tag">${v.tag}</span>`;
+      btn.onclick = () => {
+        document.querySelectorAll(".voice-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        selectedVoice = v.id;
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  buildGrid(OPENAI_VOICES, "grid-openai");
+  buildGrid(ELEVENLABS_VOICES, "grid-elevenlabs");
+
+  function switchTab(name, el) {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    el.classList.add("active");
+    document.getElementById("tab-" + name).classList.add("active");
+  }
+
+  document.getElementById("inputText").addEventListener("input", function() {
+    document.getElementById("charCount").textContent = this.value.length + " / 2000";
+  });
+
+  // Waveform bars
+  const waveEl = document.getElementById("waveform");
+  BAR_HEIGHTS.forEach(h => {
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.height = h + "px";
+    waveEl.appendChild(bar);
+  });
+
+  function onKeyInput() {
+    const val = document.getElementById("customKey").value.trim();
+    const status = document.getElementById("keyStatus");
+    if (val) {
+      status.textContent = "Using your key";
+      status.className = "key-status custom";
+    } else {
+      status.textContent = "Using default key";
+      status.className = "key-status default";
+    }
+  }
+
+  function getActiveKey() {
+    const custom = document.getElementById("customKey").value.trim();
+    return custom || DEFAULT_KEY;
+  }
+
+  async function generate() {
+    const text    = document.getElementById("inputText").value.trim();
+    const errorEl = document.getElementById("errorMsg");
+    errorEl.textContent = "";
+
+    if (!text) { errorEl.textContent = "Please enter some text to speak."; return; }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("https://gen.pollinations.ai/v1/audio/speech", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + getActiveKey()
+        },
+        body: JSON.stringify({
+          model: "tts-1",
+          input: text,
+          voice: selectedVoice,
+          response_format: "mp3"
+        })
+      });
+
+      if (!res.ok) {
+        let msg = "API error " + res.status;
+        try { const j = await res.json(); msg = j?.error?.message || msg; } catch {}
+        throw new Error(msg);
+      }
+
+      const blob = await res.blob();
+      audioBlob = blob;
+      if (audioURL) URL.revokeObjectURL(audioURL);
+      audioURL = URL.createObjectURL(blob);
+      audioEl.src = audioURL;
+      audioEl.load();
+
+      document.getElementById("playerMeta").textContent = "tts-1  |  " + selectedVoice + "  |  mp3";
+      showPlayer(true);
+
+    } catch(e) {
+      console.error(e);
+      errorEl.textContent = e.message;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function setLoading(on) {
+    document.getElementById("genBtn").disabled = on;
+    document.getElementById("spinnerSection").style.display = on ? "flex" : "none";
+    if (on) showPlayer(false);
+  }
+
+  function showPlayer(show) {
+    document.getElementById("playerCard").style.display = show ? "block" : "none";
+  }
+
+  audioEl.addEventListener("timeupdate", () => {
+    if (!audioEl.duration) return;
+    document.getElementById("progressFill").style.width = (audioEl.currentTime / audioEl.duration * 100) + "%";
+    document.getElementById("timeDisplay").textContent = fmt(audioEl.currentTime) + " / " + fmt(audioEl.duration);
+    if (!audioEl.paused) {
+      document.querySelectorAll(".bar").forEach(b => {
+        b.style.height = (4 + Math.random() * 34) + "px";
+        b.style.opacity = 0.35 + Math.random() * 0.65;
+      });
+    }
+  });
+
+  audioEl.addEventListener("ended", () => {
+    document.getElementById("playBtn").innerHTML = "&#9654;";
+    document.getElementById("progressFill").style.width = "0%";
+    document.querySelectorAll(".bar").forEach((b, i) => {
+      b.style.height = BAR_HEIGHTS[i] + "px";
+      b.style.opacity = "0.4";
+    });
+  });
+
+  function togglePlay() {
+    if (audioEl.paused) { audioEl.play(); document.getElementById("playBtn").innerHTML = "&#9646;&#9646;"; }
+    else { audioEl.pause(); document.getElementById("playBtn").innerHTML = "&#9654;"; }
+  }
+
+  function seek(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    audioEl.currentTime = ((e.clientX - rect.left) / rect.width) * audioEl.duration;
+  }
+
+  function downloadAudio() {
+    if (!audioBlob) return;
+    const a = document.createElement("a");
+    a.href = audioURL; a.download = "pollinations-voice.mp3"; a.click();
+  }
+
+  function fmt(s) {
+    if (!s || isNaN(s)) return "0:00";
+    return Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+  }
+</script>
+</body>
+</html>
