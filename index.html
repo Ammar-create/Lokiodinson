@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080a0d">
+<meta name="description" content="Failure builds the Merge series — frontier models fused from specialized parents — and custom agent harnesses engineered around the specific ways your agents break.">
+<title>Failure — Merge models &amp; custom agent harnesses</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23080a0d'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='22' font-weight='700' text-anchor='middle' fill='%23e34a38'%3E%D7%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tolerance.css">
+</head>
+<body>
+
+<a class="skip" href="#hero">Skip to content</a>
+
+<!-- WebGL fluid background (populated by webgl.js) -->
+<canvas id="fluid" aria-hidden="true"></canvas>
+<div class="bg-scrim" aria-hidden="true"></div>
+
+<!-- SVG defs: liquid displacement filter for the hero title -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="liquid-filter" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence id="liquid-turb" type="fractalNoise" baseFrequency="0.006 0.012"
+                    numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap id="liquid-disp" in="SourceGraphic" in2="noise"
+                         scale="0" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ===================== NAV ===================== -->
+<nav class="nav" id="nav" aria-label="Primary">
+  <div class="wrap">
+    <a class="wordmark" href="#hero" aria-label="Failure — home">Failure<sup class="x">×</sup></a>
+    <div class="nav-links" role="list">
+      <a href="#series" role="listitem">Merge series</a>
+      <a href="#harnesses" role="listitem">Harnesses</a>
+      <a href="#showcase" role="listitem">Releases</a>
+      <a href="#news" role="listitem">News</a>
+      <a href="#faq" role="listitem">FAQ</a>
+    </div>
+    <div class="nav-actions">
+      <div class="lang" data-lang>
+        <button class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select language">
+          <span data-lang-current>EN</span>
+          <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <ul class="lang-menu" role="listbox" aria-label="Language">
+          <li><button role="option" aria-selected="true"  data-lang-code="EN">English<span>EN</span></button></li>
+          <li><button role="option" aria-selected="false" data-lang-code="日本語">日本語<span>JA</span></button></li>
+          <li><button role="option" aria-selected="false" data-lang-code="Deutsch">Deutsch<span>DE</span></button></li>
+          <li><button role="option" aria-selected="false" data-lang-code="Français">Français<span>FR</span></button></li>
+        </ul>
+      </div>
+      <a class="btn small" href="#contact">Talk to us</a>
+      <button class="iconbtn menu-trigger" id="menuTrigger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== MOBILE MENU ===================== -->
+<div class="mobile-menu" id="mobileMenu" data-open="false" role="dialog" aria-modal="true" aria-label="Menu">
+  <button class="iconbtn mm-close" id="menuClose" aria-label="Close menu">
+    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <nav aria-label="Mobile">
+    <a href="#series"><span>Merge series</span><span class="idx">01</span></a>
+    <a href="#harnesses"><span>Harnesses</span><span class="idx">02</span></a>
+    <a href="#showcase"><span>Releases</span><span class="idx">03</span></a>
+    <a href="#news"><span>News</span><span class="idx">04</span></a>
+    <a href="#faq"><span>FAQ</span><span class="idx">05</span></a>
+  </nav>
+  <div class="mm-cta">
+    <a class="btn" href="#contact">Start a harness engagement</a>
+    <a class="btn ghost" href="#showcase">See the Merge series</a>
+  </div>
+</div>
+
+<main>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero" id="hero">
+  <div class="wrap">
+    <p class="eyebrow" data-hero="1">Failure.fail — models &amp; harnesses</p>
+    <h1 class="display" data-hero="2">
+      <span class="liquid wobble">Everything</span><br>
+      <span class="liquid wobble">fails</span><span class="x-big">×</span>
+    </h1>
+    <p class="lede" data-hero="3">Failure builds the <strong>Merge series</strong> — frontier models fused
+      from specialized parents instead of trained from scratch — and <strong>custom agent
+      harnesses</strong> engineered around the specific ways your agents will break. We're named
+      after the part everyone else skips.</p>
+    <div class="cta" data-hero="4">
+      <a class="btn" href="#contact">Start a harness engagement</a>
+      <button class="btn ghost" data-open-modal aria-haspopup="dialog">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        Watch the weld
+      </button>
+    </div>
+    <div class="hero-status" data-hero="5">
+      <div class="stat"><b>3</b><span>Merge releases</span></div>
+      <div class="stat"><b>4</b><span>failure modes mapped</span></div>
+      <div class="stat"><b>2wk</b><span>audit to first harness</span></div>
+      <div class="stat"><b>100%</b><span>composition on record</span></div>
+    </div>
+
+    <figure class="fusion reveal" data-hero="6"
+      aria-label="Diagram: four parent models fuse into MERGE-1; two rejected candidates are discarded during tempering">
+      <svg viewBox="0 0 1080 300" role="img">
+        <path class="draw"    d="M60,60  C 320,60  430,138 560,148" fill="none" stroke="#e2b451" stroke-width="2.5"/>
+        <path class="draw d2" d="M60,120 C 320,120 430,144 560,150" fill="none" stroke="#cf7a3d" stroke-width="2.5"/>
+        <path class="draw d3" d="M60,180 C 320,180 430,158 560,152" fill="none" stroke="#a878bd" stroke-width="2.5"/>
+        <path class="draw d4" d="M60,240 C 320,240 430,164 560,154" fill="none" stroke="#3fa6c6" stroke-width="2.5"/>
+        <path d="M600,151 C 660,170 690,215 706,244" fill="none" stroke="#5f676e" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <path d="M600,151 C 680,175 740,200 790,214" fill="none" stroke="#5f676e" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <text x="716" y="252" fill="#e34a38" font-size="15">×</text>
+        <text x="800" y="222" fill="#e34a38" font-size="15">×</text>
+        <text x="700" y="278">REJECTED IN TEMPERING</text>
+        <rect x="592" y="143" width="16" height="16" transform="rotate(45 600 151)" fill="#edeae2"/>
+        <path class="draw out" d="M608,151 L 1020,151" fill="none" stroke="#edeae2" stroke-width="4"/>
+        <text x="60" y="46">PARENT · REASONING</text>
+        <text x="60" y="106">PARENT · CODE</text>
+        <text x="60" y="166">PARENT · MULTILINGUAL</text>
+        <text x="60" y="226">PARENT · INSTRUCTION</text>
+        <text x="860" y="136" fill="#edeae2" font-weight="600">MERGE-1</text>
+        <text x="576" y="190">WELD</text>
+      </svg>
+      <figcaption class="cap"><span>FIG. 01 — MODEL FUSION, SIMPLIFIED</span><span>CANDIDATES ARE STRESS-TESTED TO FAILURE BEFORE RELEASE</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="scroll-cue" aria-hidden="true">
+    <span>Scroll</span>
+    <span class="track"></span>
+  </div>
+</header>
+
+<!-- ===================== STATUS MARQUEE ===================== -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Models fused, not trained</span><span>Containment built to fit</span>
+    <span>Hours of compute, not months</span><span>Full composition record</span>
+    <span>Named after what everyone skips</span>
+    <span>Models fused, not trained</span><span>Containment built to fit</span>
+    <span>Hours of compute, not months</span><span>Full composition record</span>
+    <span>Named after what everyone skips</span>
+  </div>
+</div>
+
+<!-- ===================== TWO HALVES ===================== -->
+<section class="section" id="series">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Two halves, one assumption</p>
+      <h2 class="display">The model will fail.<br>The system shouldn't.</h2>
+    </div>
+    <div class="halves">
+      <div class="card reveal d1">
+        <p class="eyebrow">01 — The Merge series</p>
+        <h3>Models fused, not trained</h3>
+        <p>We compose frontier capability by merging specialized parent models — weighing them
+          layer by layer, welding them into one set of weights, then tempering the result against
+          evaluation suites until the weak candidates break. Hours of compute instead of months
+          of training, with a full composition record for every release.</p>
+        <a class="more seam-text" href="#showcase">Inspect the series →</a>
+      </div>
+      <div class="card reveal d2" id="harnesses">
+        <p class="eyebrow">02 — Custom harnesses</p>
+        <h3>Containment, built to fit</h3>
+        <p>An agent is only as reliable as the structure holding it. We design and build bespoke
+          harnesses — tool contracts, budgets, checkpoints, eval hooks, human gates — mapped to
+          your workload's actual failure modes, not a generic framework's guess at them. Works
+          with Merge models or any model you already run.</p>
+        <a class="more seam-text" href="#contact">How engagements work →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FAILURE MODES ===================== -->
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Know your enemy</p>
+      <h2 class="display">Failure modes we build against</h2>
+      <p class="lede">Every harness starts from a failure-mode inventory. These four show up in
+        almost every agent deployment we audit.</p>
+    </div>
+    <div class="grid c4">
+      <div class="card fail-card reveal d1">
+        <span class="x">×</span><b>Silent loops</b>
+        <p>The agent retries a broken step forever, quietly burning budget and returning nothing.</p>
+        <p class="fix">Bounded step &amp; spend budgets, loop detection</p>
+      </div>
+      <div class="card fail-card reveal d2">
+        <span class="x">×</span><b>Tool drift</b>
+        <p>An upstream API changes shape. The agent keeps calling it, misreading garbage as signal.</p>
+        <p class="fix">Typed tool contracts, drift halts</p>
+      </div>
+      <div class="card fail-card reveal d3">
+        <span class="x">×</span><b>Context rot</b>
+        <p>Long-running tasks degrade as state accumulates until the agent forgets its own goal.</p>
+        <p class="fix">Checkpoints, state compaction</p>
+      </div>
+      <div class="card fail-card reveal d4">
+        <span class="x">×</span><b>Confident nonsense</b>
+        <p>The model asserts a wrong answer with perfect fluency, then acts on it irreversibly.</p>
+        <p class="fix">Eval hooks, human gates on irreversible actions</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SHOWCASE CAROUSEL ===================== -->
+<section class="section showcase" id="showcase" aria-roledescription="carousel" aria-label="The Merge series">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Current releases</p>
+      <h2 class="display">The Merge series</h2>
+    </div>
+
+    <div class="showcase-stage reveal">
+      <div class="showcase-visual" aria-live="polite">
+        <div class="slide" data-slide="0" aria-hidden="false" style="--accent:var(--straw)">
+          <span class="tag">Generalist · 70B</span>
+          <span class="aura"></span><span class="glyph">M1</span>
+        </div>
+        <div class="slide" data-slide="1" aria-hidden="true" style="--accent:var(--bronze)">
+          <span class="tag">Code-weighted · 70B</span>
+          <span class="aura"></span><span class="glyph">1C</span>
+        </div>
+        <div class="slide" data-slide="2" aria-hidden="true" style="--accent:var(--peacock)">
+          <span class="tag">Compact · 8B</span>
+          <span class="aura"></span><span class="glyph">1S</span>
+        </div>
+      </div>
+
+      <div class="showcase-info">
+        <h3 data-info="name">Merge-1</h3>
+        <p class="role" data-info="role">Generalist · 70B</p>
+        <p data-info="desc">The flagship weld. Balanced composition for agentic work: planning,
+          tool use, recovery.</p>
+
+        <div class="comp reveal">
+          <div class="comp-bar" data-info="bar"></div>
+          <div class="comp-legend" data-info="legend"></div>
+        </div>
+
+        <div class="showcase-controls">
+          <button class="iconbtn" data-carousel="prev" aria-label="Previous release">
+            <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+          </button>
+          <button class="iconbtn" data-carousel="next" aria-label="Next release">
+            <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+          <span class="count"><b data-carousel="index">1</b> / <span data-carousel="total">3</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="thumbs" role="tablist" aria-label="Choose a release">
+      <button class="thumb" role="tab" aria-selected="true"  data-thumb="0" style="--accent:var(--straw)">
+        <span class="t-name">Merge-1</span><span class="t-role">Generalist · 70B</span>
+      </button>
+      <button class="thumb" role="tab" aria-selected="false" data-thumb="1" style="--accent:var(--bronze)">
+        <span class="t-name">Merge-1C</span><span class="t-role">Code-weighted · 70B</span>
+      </button>
+      <button class="thumb" role="tab" aria-selected="false" data-thumb="2" style="--accent:var(--peacock)">
+        <span class="t-name">Merge-1S</span><span class="t-role">Compact · 8B</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MEDIA / TRAILER ===================== -->
+<section class="section" style="padding-top:0" id="media">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">The process</p>
+      <h2 class="display">Watch a model get welded</h2>
+      <p class="lede">Ninety seconds inside the tempering loop — parents weighed, welded, and
+        stress-tested to failure before anything ships.</p>
+    </div>
+    <div class="media reveal" id="mediaPoster">
+      <canvas id="mediaCanvas" aria-hidden="true"></canvas>
+      <div class="media-inner">
+        <button class="play" data-open-modal aria-haspopup="dialog" aria-label="Play the weld trailer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <p class="runtime">Trailer · 01:30 · muted, captioned</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== NEWS ===================== -->
+<section class="section" style="padding-top:0" id="news">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Dispatches</p>
+      <h2 class="display">News &amp; updates</h2>
+    </div>
+    <div class="grid c3">
+      <article class="news-card card reveal d1">
+        <div class="thumb-img"><span class="mono">FIG · WELD LOG</span></div>
+        <div class="meta"><span class="cat">Release</span><time datetime="2026-06-18">Jun 18, 2026</time></div>
+        <h3>Merge-1C re-welded for long-horizon edits</h3>
+        <p>The code-weighted alloy gains repository navigation and test-discipline gains after a
+          second tempering pass.</p>
+        <a class="rd seam-text" href="#showcase">Read release notes →</a>
+      </article>
+      <article class="news-card card reveal d2">
+        <div class="thumb-img"><span class="mono">FIG · AUDIT</span></div>
+        <div class="meta"><span class="cat">Research</span><time datetime="2026-05-30">May 30, 2026</time></div>
+        <h3>The four failure modes we find in every audit</h3>
+        <p>Silent loops, tool drift, context rot, confident nonsense — and the harness primitives
+          that contain each one.</p>
+        <a class="rd seam-text" href="#contact">Read the field notes →</a>
+      </article>
+      <article class="news-card card reveal d3">
+        <div class="thumb-img"><span class="mono">FIG · WAITLIST</span></div>
+        <div class="meta"><span class="cat">Company</span><time datetime="2026-05-12">May 12, 2026</time></div>
+        <h3>Merge series API waitlist is open</h3>
+        <p>Early access to Merge-1, Merge-1C, and the compact Merge-1S for high-volume harness
+          steps.</p>
+        <a class="rd seam-text" href="#contact">Join the waitlist →</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BAND QUOTE ===================== -->
+<section class="band">
+  <div class="wrap reveal">
+    <p class="eyebrow">Why the name</p>
+    <p class="display">Every serious engineering discipline is organized around failure. Ours should be too.</p>
+  </div>
+</section>
+
+<!-- ===================== CONVERSION ===================== -->
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Get in touch</p>
+      <h2 class="display">Bring us something<br>that breaks</h2>
+      <p class="lede">Two ways in. Start a harness engagement with a two-week failure-mode audit,
+        or join the Merge series API waitlist for model access.</p>
+    </div>
+
+    <div class="convert">
+      <!-- PRIMARY: harness engagement -->
+      <form class="card primary reveal d1" id="engageForm" novalidate>
+        <span class="badge hot">Time-sensitive · limited slots</span>
+        <h3>Start a harness engagement</h3>
+        <p>An engineer reviews your agent stack and returns a failure-mode inventory within two
+          weeks. You get the audit whether or not we build the harness.</p>
+        <p class="req">Requirements: an agent system already in staging or production.</p>
+
+        <div class="field">
+          <label for="eg-email">Work email</label>
+          <input id="eg-email" name="email" type="email" autocomplete="email"
+                 inputmode="email" aria-describedby="eg-email-err" placeholder="you@company.com">
+          <span class="err" id="eg-email-err" aria-live="polite"></span>
+        </div>
+        <div class="field">
+          <label for="eg-stack">What are you running?</label>
+          <select id="eg-stack" name="stack">
+            <option value="">Select a stack…</option>
+            <option>Merge series</option>
+            <option>Frontier API model</option>
+            <option>Open-weights, self-hosted</option>
+            <option>Mixed / multiple</option>
+          </select>
+        </div>
+        <label class="consent">
+          <input type="checkbox" name="consent" aria-describedby="eg-consent-err">
+          <span>I agree to be contacted about a harness engagement and accept the
+            <a href="#faq">privacy policy</a> and <a href="#faq">terms</a>.</span>
+        </label>
+        <span class="err" id="eg-consent-err" aria-live="polite"></span>
+
+        <div class="form-actions">
+          <button class="btn signal" type="submit">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="label">Request the audit</span>
+          </button>
+          <p class="form-status" data-status aria-live="polite"></p>
+        </div>
+
+        <div class="form-success" data-success>
+          <div class="chk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg></div>
+          <h3>Audit requested</h3>
+          <p>Check your inbox — an engineer will reach out within two business days with a scoping call and NDA.</p>
+        </div>
+      </form>
+
+      <!-- SECONDARY: waitlist -->
+      <form class="card reveal d2" id="waitForm" novalidate>
+        <span class="badge soft">General interest</span>
+        <h3>Join the model waitlist</h3>
+        <p>Get Merge series API access and release notes for Merge-1, Merge-1C, and Merge-1S. No
+          existing agent stack required.</p>
+        <p class="req">You'll receive: launch access, changelogs, and composition records.</p>
+
+        <div class="field">
+          <label for="wl-email">Email</label>
+          <input id="wl-email" name="email" type="email" autocomplete="email"
+                 inputmode="email" aria-describedby="wl-email-err" placeholder="you@example.com">
+          <span class="err" id="wl-email-err" aria-live="polite"></span>
+        </div>
+        <label class="consent">
+          <input type="checkbox" name="consent" aria-describedby="wl-consent-err">
+          <span>Send me Merge series updates. I accept the <a href="#faq">privacy policy</a>.</span>
+        </label>
+        <span class="err" id="wl-consent-err" aria-live="polite"></span>
+
+        <div class="form-actions">
+          <button class="btn" type="submit">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="label">Join the waitlist</span>
+          </button>
+          <p class="form-status" data-status aria-live="polite"></p>
+        </div>
+
+        <div class="form-success" data-success>
+          <div class="chk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg></div>
+          <h3>You're on the list</h3>
+          <p>We'll email you the moment Merge series access opens up. No spam — changelogs only.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FAQ ===================== -->
+<section class="section" style="padding-top:0" id="faq">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">Answers</p>
+      <h2 class="display">Frequently asked</h2>
+    </div>
+    <div class="faq reveal">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-1"><span>What does "merging" actually mean?</span><span class="pm" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-1"><div class="inner">We combine the weights of several specialized parent models — layer by layer — into a single new set of weights, then temper the result against evaluation suites. No pre-training from scratch; capability is composed and stress-tested in hours of compute rather than months.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-2"><span>Do harnesses only work with Merge models?</span><span class="pm" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-2"><div class="inner">No. Harnesses are model-agnostic. They wrap Merge models, any frontier API model, or your self-hosted open-weights model. The harness is built around your workload's failure modes, not a specific model.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-3"><span>How long is a harness engagement?</span><span class="pm" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-3"><div class="inner">Every engagement opens with a two-week failure-mode audit of your existing agent stack. You keep the audit regardless of whether we go on to build the harness. Build timelines depend on scope and are set after the audit.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-4"><span>Is the Merge series available now?</span><span class="pm" aria-hidden="true"></span></button>
+        <div class="faq-a" id="faq-4"><div class="inner">Merge-1, Merge-1C, and Merge-1S are released and available through the API waitlist. Join the waitlist above for access, changelogs, and the full composition record for each release.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <span class="wordmark">Failure<sup class="x">×</sup></span>
+        <p>Merge models &amp; custom agent harnesses. Named after the part everyone else skips.</p>
+        <div class="social">
+          <a class="iconbtn" href="#" target="_blank" rel="noopener" aria-label="Failure on GitHub">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2A10 10 0 0 0 8.8 21.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-4.9 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.6 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.3.2 2.3.1 2.6.6.7 1 1.6 1 2.7 0 3.8-2.3 4.6-4.6 4.9.4.3.7.9.7 1.9v2.7c0 .3.2.6.7.5A10 10 0 0 0 12 2z"/></svg>
+          </a>
+          <a class="iconbtn" href="#" target="_blank" rel="noopener" aria-label="Failure on X">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.9 2h3.3l-7.2 8.3L23.5 22h-6.6l-5.2-6.8L5.8 22H2.5l7.7-8.8L2 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20z"/></svg>
+          </a>
+          <a class="iconbtn" href="mailto:hello@failure.fail" aria-label="Email Failure">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+          </a>
+        </div>
+      </div>
+      <ul>
+        <li class="eyebrow">Work</li>
+        <li><a href="#series">Merge series</a></li>
+        <li><a href="#harnesses">Harnesses</a></li>
+        <li><a href="#showcase">Releases</a></li>
+        <li><a href="#news">Research</a></li>
+      </ul>
+      <ul>
+        <li class="eyebrow">Company</li>
+        <li><a href="#hero">About</a></li>
+        <li><a href="#contact">Careers</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <ul>
+        <li class="eyebrow">Legal</li>
+        <li><a href="#faq">Privacy policy</a></li>
+        <li><a href="#faq">Terms of service</a></li>
+        <li><a href="#faq">Cookie policy</a></li>
+      </ul>
+      <div>
+        <p class="eyebrow" style="margin-bottom:14px">Region</p>
+        <div class="lang" data-lang>
+          <button class="lang-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Select language">
+            <span data-lang-current>English</span>
+            <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="lang-menu" role="listbox" aria-label="Language">
+            <li><button role="option" aria-selected="true"  data-lang-code="English">English<span>EN</span></button></li>
+            <li><button role="option" aria-selected="false" data-lang-code="日本語">日本語<span>JA</span></button></li>
+            <li><button role="option" aria-selected="false" data-lang-code="Deutsch">Deutsch<span>DE</span></button></li>
+            <li><button role="option" aria-selected="false" data-lang-code="Français">Français<span>FR</span></button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="legal">
+      <span>© 2026 Failure, Inc.</span>
+      <span>Failure.fail — est. where things break</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== MEDIA MODAL ===================== -->
+<div class="modal-overlay" id="mediaModal" data-open="false">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <p class="eyebrow" id="modalTitle">Trailer — model fusion, in motion</p>
+      <button class="iconbtn" id="modalClose" aria-label="Close video">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <canvas id="trailerCanvas" aria-label="Animated visualization of parent models welding into one"></canvas>
+    </div>
+    <p class="modal-cap">Captions: parents are weighed layer by layer, welded into one set of
+      weights, then tempered against evaluation suites until weak candidates break.</p>
+  </div>
+</div>
+
+<!-- back to top -->
+<button class="iconbtn to-top" id="toTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</button>
+
+<!-- ===================== SCRIPTS =====================
+     GSAP + Three.js (the stack from the teardown), vendored locally under
+     /vendor so the site is self-contained and works behind any CSP/egress
+     policy. To serve from a CDN instead, swap these paths for:
+       gsap:  https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js
+       st:    https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js
+       three: https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js  -->
+<script src="vendor/gsap.min.js" defer></script>
+<script src="vendor/ScrollTrigger.min.js" defer></script>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js" } }
+</script>
+<script type="module" src="webgl.js"></script>
+<script src="app.js" defer></script>
+</body>
+</html>
