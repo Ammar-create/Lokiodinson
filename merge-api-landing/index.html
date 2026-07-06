@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="Merge API by FAILURE — one endpoint, an ensemble of specialist AI models deliberating in private and answering as one." />
+<title>MERGE API — Five minds. One voice. | FAILURE</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Outfit:wght@200..700&family=JetBrains+Mono:wght@300..600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body data-scene="0">
+
+<!-- ══════════════════════ LOADER ══════════════════════ -->
+<div id="loader" aria-label="Loading Merge API" role="status">
+  <canvas id="loader-canvas" aria-hidden="true"></canvas>
+  <div class="loader-hud">
+    <div class="loader-brand">
+      <span class="loader-house">FAILURE&nbsp;presents</span>
+      <h1 class="loader-title">MERGE<span class="loader-thin">&nbsp;API</span></h1>
+    </div>
+    <div class="loader-meta">
+      <span id="loader-role" class="loader-role">waking the architect…</span>
+      <span class="loader-pct-wrap"><span id="loader-pct">00</span><em>%</em></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ WEBGL OCEAN ══════════════════════ -->
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+
+<!-- ══════════════════════ HEADER ══════════════════════ -->
+<header class="site-head" id="site-head">
+  <a class="brand" href="#surface" data-goto="0" aria-label="Merge API — home">
+    <span class="brand-sigil" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="30" height="30" fill="none">
+        <path d="M4 22c4-9 8-9 12 0s8 9 12 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 13c4-9 8-9 12 0s8 9 12 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".45"/>
+      </svg>
+    </span>
+    <span class="brand-word">MERGE<b>API</b><i>by failure</i></span>
+  </a>
+
+  <nav class="head-nav" aria-label="Sections">
+    <a href="#descent"   data-goto="1">How&nbsp;it&nbsp;thinks</a>
+    <a href="#currents"  data-goto="2">Models</a>
+    <a href="#depths"    data-goto="3">Platform</a>
+    <a href="#emergence" data-goto="4">Access</a>
+  </nav>
+
+  <div class="head-tools">
+    <a class="btn btn-key" href="#emergence" data-goto="4">
+      <span>Get&nbsp;API&nbsp;Key</span>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><path d="M5 12h13m-5-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════════ MOBILE MENU ══════════════════════ -->
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <nav aria-label="Mobile sections">
+    <a href="#surface"   data-goto="0"><i>00</i>Surface</a>
+    <a href="#descent"   data-goto="1"><i>01</i>How it thinks</a>
+    <a href="#currents"  data-goto="2"><i>02</i>Models</a>
+    <a href="#depths"    data-goto="3"><i>03</i>Platform</a>
+    <a href="#emergence" data-goto="4"><i>04</i>Access</a>
+  </nav>
+  <a class="btn btn-key big" href="#emergence" data-goto="4">Get API Key</a>
+  <p class="menu-foot">FAILURE&nbsp;·&nbsp;failure.fail</p>
+</div>
+
+<!-- ══════════════════════ SCENES ══════════════════════ -->
+<main id="scenes">
+
+  <!-- ─────────── 00 · SURFACE / HERO ─────────── -->
+  <section class="scene scene-hero" id="surface" data-index="0" aria-label="Merge API — introduction">
+    <div class="scene-inner">
+      <div class="hero-stack">
+        <p class="eyebrow reveal" style="--d:.05s"><b>FAILURE</b> presents · OpenAI-compatible orchestration</p>
+        <h1 class="hero-title" aria-label="Merge API">
+          <span class="line reveal" style="--d:.14s">MERGE</span>
+          <span class="line line-italic reveal" style="--d:.26s">API</span>
+        </h1>
+        <p class="hero-tag reveal" style="--d:.4s">Five minds. <em>One voice.</em></p>
+        <p class="hero-copy reveal" style="--d:.5s">
+          One endpoint. Beneath it, an ensemble of specialist models — architect,
+          implementer, critic, researcher — deliberating in private and surfacing
+          as a single, synthesized answer.
+        </p>
+        <div class="cta-row reveal" style="--d:.62s">
+          <a class="btn btn-primary" href="#emergence" data-goto="4"><span>Get API Access</span></a>
+          <a class="btn btn-ghost" href="#descent" data-goto="1">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true"><path d="M12 4v13m0 0 5-5m-5 5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>See how it thinks</span>
+          </a>
+        </div>
+        <ul class="chip-row reveal" style="--d:.74s" aria-label="Highlights">
+          <li><code>POST /v1/chat/completions</code></li>
+          <li>Edge-deployed</li>
+          <li>Streaming-first</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 01 · DESCENT / HOW IT WORKS ─────────── -->
+  <section class="scene scene-descent" id="descent" data-index="1" aria-label="How Merge API thinks">
+    <div class="scene-inner">
+      <header class="scene-head">
+        <p class="eyebrow reveal" style="--d:.05s">01 — The Descent</p>
+        <h2 class="scene-title reveal" style="--d:.14s">Beneath the <em>surface</em></h2>
+        <p class="scene-copy reveal" style="--d:.24s">
+          Every request is split into private, role-labeled <b>notes</b> — no cross-talk,
+          no averaging, no voting. Each specialist works alone; a judge reads everything
+          and speaks for the ensemble.
+        </p>
+      </header>
+
+      <ol class="role-grid" aria-label="Specialist roles">
+        <li class="role-card reveal" style="--d:.3s">
+          <span class="role-num">n·01</span>
+          <h3>The Architect</h3>
+          <p>Maps constraints, edge cases and the shape of the approach before a line is written.</p>
+          <code>diffusion-gemma</code>
+        </li>
+        <li class="role-card reveal" style="--d:.4s">
+          <span class="role-num">n·02</span>
+          <h3>The Implementer</h3>
+          <p>Concrete code, exact edits, syntax risks — the hands that build the thing.</p>
+          <code>kimi-k2.7</code>
+        </li>
+        <li class="role-card reveal" style="--d:.5s">
+          <span class="role-num">n·03</span>
+          <h3>The Researcher</h3>
+          <p>Current-info duty: live dependency versions, docs and external facts, in real time.</p>
+          <code>sonar</code>
+        </li>
+        <li class="role-card reveal" style="--d:.6s">
+          <span class="role-num">n·04</span>
+          <h3>The Critic</h3>
+          <p>Hunts mistakes, simpler alternatives and security holes before you ever see them.</p>
+          <code>gpt-5.5</code>
+        </li>
+      </ol>
+
+      <p class="flow-line reveal" style="--d:.72s" aria-label="Pipeline">
+        <span>4 private notes</span><i>→</i><span>1 judge <code>opus-4.8</code></span><i>→</i><b>your answer</b>
+      </p>
+    </div>
+  </section>
+
+  <!-- ─────────── 02 · CURRENTS / MODELS ─────────── -->
+  <section class="scene scene-currents" id="currents" data-index="2" aria-label="Merge API models">
+    <div class="scene-inner">
+      <header class="scene-head">
+        <p class="eyebrow reveal" style="--d:.05s">02 — The Currents</p>
+        <h2 class="scene-title reveal" style="--d:.14s">Three <em>currents</em>, one ocean</h2>
+        <p class="scene-copy reveal" style="--d:.24s">
+          Point your existing OpenAI client at a different sea. Same schema,
+          three temperaments.
+        </p>
+      </header>
+
+      <div class="model-row" role="list">
+        <article class="model-card reveal" style="--d:.32s" role="listitem">
+          <span class="model-badge">default</span>
+          <h3><code>orchestrator</code></h3>
+          <p class="model-sub">The vibe-coding profile. Balanced depth for everyday builds.</p>
+          <ul>
+            <li><i>notes</i>Diffusion&nbsp;Gemma · Kimi&nbsp;K2.7 · Sonar · GPT-5.5</li>
+            <li><i>judge</i>Opus-4.8</li>
+            <li><i>net</i>6-deep fallback chain</li>
+          </ul>
+        </article>
+
+        <article class="model-card is-premium reveal" style="--d:.44s" role="listitem">
+          <span class="model-badge">premium</span>
+          <h3><code>zandy-merge-aiko</code></h3>
+          <p class="model-sub">The deep current. Frontier note models for the hardest work.</p>
+          <ul>
+            <li><i>notes</i>GPT-5.5 · Sonar · Kimi&nbsp;K2.7 · Grok-4.3</li>
+            <li><i>judge</i>Opus-4.8</li>
+            <li><i>net</i>challenge-everything critic pass</li>
+          </ul>
+        </article>
+
+        <article class="model-card reveal" style="--d:.56s" role="listitem">
+          <span class="model-badge is-fast">3× faster</span>
+          <h3><code>zandy-merge-fast</code></h3>
+          <p class="model-sub">The riptide. Cerebras inference, 15-second ceilings.</p>
+          <ul>
+            <li><i>notes</i>Gemma-4&nbsp;31B · GLM-4.7 · GPT-OSS&nbsp;120B</li>
+            <li><i>judge</i>Mercury-2</li>
+            <li><i>net</i>built for IDE &amp; chat latency</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 03 · DEPTHS / PLATFORM ─────────── -->
+  <section class="scene scene-depths" id="depths" data-index="3" aria-label="Platform features">
+    <div class="scene-inner">
+      <header class="scene-head">
+        <p class="eyebrow reveal" style="--d:.05s">03 — The Depths</p>
+        <h2 class="scene-title reveal" style="--d:.14s">Forged in the <em>deep</em></h2>
+        <p class="scene-copy reveal" style="--d:.24s">
+          Luminous infrastructure under crushing pressure — running at the edge,
+          in 300+ cities, with no cold starts.
+        </p>
+      </header>
+
+      <ul class="feature-grid">
+        <li class="feature reveal" style="--d:.3s">
+          <i aria-hidden="true">◍</i><h3>Streaming progress</h3>
+          <p>Live orchestration events — <code>note_start</code>, <code>output_done</code>, heartbeats — keep clients warm while the ensemble deliberates.</p>
+        </li>
+        <li class="feature reveal" style="--d:.38s">
+          <i aria-hidden="true">⌾</i><h3>Tool-aware</h3>
+          <p>Full function calling. Notes reason in private; only the judge sees your tools schema and emits validated calls.</p>
+        </li>
+        <li class="feature reveal" style="--d:.46s">
+          <i aria-hidden="true">⟗</i><h3>Fallback chains</h3>
+          <p>If the judge drowns, the next one surfaces — six deep, ending at raw note recovery. Failure is a feature here.</p>
+        </li>
+        <li class="feature reveal" style="--d:.54s">
+          <i aria-hidden="true">⬡</i><h3>Edge-native</h3>
+          <p>Cloudflare Workers + KV. Distributed rate-limit state, provider pacing, zero servers to babysit.</p>
+        </li>
+        <li class="feature reveal" style="--d:.62s">
+          <i aria-hidden="true">≋</i><h3>Zero-downtime config</h3>
+          <p>Re-shape the whole ensemble with one JSON override — new providers, new roles, no redeploy.</p>
+        </li>
+        <li class="feature reveal" style="--d:.7s">
+          <i aria-hidden="true">◒</i><h3>Silent resilience</h3>
+          <p>A drowned note never sinks the answer. Orchestration continues on every current that survives.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─────────── 04 · EMERGENCE / CTA ─────────── -->
+  <section class="scene scene-emergence" id="emergence" data-index="4" aria-label="Get access">
+    <div class="scene-inner">
+      <div class="emerge-grid">
+        <div class="emerge-copy">
+          <p class="eyebrow reveal" style="--d:.05s">04 — The Emergence</p>
+          <h2 class="scene-title reveal" style="--d:.14s">One voice <em>emerges</em></h2>
+          <p class="scene-copy reveal" style="--d:.24s">
+            Drop-in compatible with every OpenAI client you already run.
+            Change one base URL; gain five minds.
+          </p>
+
+          <form class="signup reveal" style="--d:.36s" id="signup" novalidate>
+            <label for="email">Join the early-access tide</label>
+            <div class="signup-row">
+              <input id="email" name="email" type="email" required
+                     placeholder="you@failure.fail" autocomplete="email" />
+              <button class="btn btn-primary" type="submit"><span>Request key</span></button>
+            </div>
+            <p class="signup-note" id="signup-note" aria-live="polite">Free while in beta · no card · keys issued weekly.</p>
+          </form>
+        </div>
+
+        <figure class="code-card reveal" style="--d:.3s">
+          <figcaption><span class="dot"></span><span class="dot"></span><span class="dot"></span><em>first_contact.sh</em></figcaption>
+<pre><code><span class="c"># same client, deeper water</span>
+curl https://api.failure.fail/v1/chat/completions \
+  -H <span class="s">"Authorization: Bearer $MERGE_KEY"</span> \
+  -d <span class="s">'{
+    "model": "orchestrator",
+    "stream": true,
+    "messages": [{
+      "role": "user",
+      "content": "Build me something honest."
+    }]
+  }'</span></code></pre>
+        </figure>
+      </div>
+
+      <footer class="site-foot reveal" style="--d:.5s">
+        <p class="foot-brand">FAILURE<i>fail forward.</i></p>
+        <nav aria-label="Legal">
+          <a href="#" rel="noopener">Privacy</a>
+          <a href="#" rel="noopener">Terms</a>
+          <a href="#" rel="noopener">Status</a>
+          <a href="#" rel="noopener">Docs</a>
+        </nav>
+        <p class="foot-copy">© 2026 FAILURE · failure.fail — a demo experience</p>
+      </footer>
+    </div>
+  </section>
+</main>
+
+<!-- ══════════════════════ PAGINATION ══════════════════════ -->
+<nav class="paginator" id="paginator" aria-label="Scene navigation">
+  <button data-goto="0" aria-label="Go to Surface"><i></i><span>Surface</span></button>
+  <button data-goto="1" aria-label="Go to Descent"><i></i><span>Descent</span></button>
+  <button data-goto="2" aria-label="Go to Currents"><i></i><span>Currents</span></button>
+  <button data-goto="3" aria-label="Go to Depths"><i></i><span>Depths</span></button>
+  <button data-goto="4" aria-label="Go to Emergence"><i></i><span>Emergence</span></button>
+</nav>
+
+<!-- scene counter + scroll cue -->
+<div class="hud-left" aria-hidden="true">
+  <span id="hud-index">00</span>
+  <span class="hud-bar"><b id="hud-fill"></b></span>
+  <span>04</span>
+</div>
+<div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+  <span>scroll to descend</span><i></i>
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
